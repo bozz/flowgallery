@@ -1,0 +1,14 @@
+===========================
+=   bFlow jquery plugin   =
+===========================
+
+
+v0.2.0 (2010-07-16)
+
+  - refactored to use <ul> list for images
+  - support for flexible image sizes
+  - added demo
+
+v0.1.0 (2010-06-22)
+
+  - Basic working version with fixed image sizes.

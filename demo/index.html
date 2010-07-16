@@ -1,0 +1,47 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>jquery-bflow v0.2.0 demo</title>
+
+		<link rel="stylesheet" href="css/skin.css" type="text/css" media="screen" charset="utf-8">
+		
+		<script src="js/jquery-1.4.2.min.js" type="text/javascript"></script>
+		<script src="js/jquery.easing.1.3.js" type="text/javascript"></script>
+		<script src="../jquery.bflow.js" type="text/javascript"></script>
+		
+		<script type="text/javascript" charset="utf-8">
+			
+			$(function() {
+					$('#gallery').bflow({
+						easing: 'easeOutCubic',
+						imagePadding: 6
+					});
+			});
+		</script>
+
+  </head>
+  <body>
+		
+		<div id="wrapper">
+			
+			<h1>bFlow v0.2.0 Demo</h1>
+				
+			<div id="content">
+				
+				<ul id="gallery">
+					<li><img src="http://farm4.static.flickr.com/3091/2853075254_ebd3573e3a.jpg" alt="house1" title="The Neckar bridge made of wood and glass built in 1988 was at 88-m wingspan the longest wooden bridge in Europe. Approx. 1,000 acres glass keep pedestrians and cyclists dry.<br/>The bridge is one of the two pedestrian bridges in Remseck (Region Stuttgart, Germany), at the mouth of the Rems (52 m) into the Neckar (80 m). Both bridges were built on land and then moved over the rivers." /></li>
+					<li><img src="curves.jpg" alt="house1" title="Some curves..." /></li>
+					<li><img src="http://farm5.static.flickr.com/4007/4340162805_6be34513fe.jpg" alt="house2" title="Rue du Jerzual in Dinan (Brittany, France) <br/>Dinan in northeastern Brittany is a wonderful and romantic medieval city.<br/>The little medieval town (population about 11,700) on the hilltop above the Rance River has many fine old half timbered buildings dating from the 13th - 16th centuries, with cobbled rambling streets, all carefully restored and preserved." /></li>
+					<li><img src="http://farm4.static.flickr.com/3224/2699313520_9741e1a188.jpg" alt="house3" title="This is some text..." /></li>
+					<li><img src="http://farm4.static.flickr.com/3034/2753528364_033f262b9e.jpg" alt="house4" title="Diese Glaskuppel ziert das Stuttgarter Kaufhaus Breuninger." /></li>
+					<li><img src="http://farm5.static.flickr.com/4046/4392876908_205e62a381.jpg" alt="house1" title="This is some text..." /></li>
+					<li><img src="http://farm1.static.flickr.com/36/119356162_8415cc58d1.jpg" alt="house2" title="UFO..." /></li>
+				</ul>
+				
+			</div><!-- #content -->
+			
+		</div><!-- #wrapper -->
+		
+  </body>
+</html>
