@@ -1,0 +1,7 @@
+
+KNOWN ISSUES
+==============
+
+- loading remote images: image sizes are not calculated correclty on initial load (images haven't fully loaded yet)
+- IE7: caption alignment bug
+- Safari: workaround for initial loading can cause empty page displyed for long time and vertical srollbars

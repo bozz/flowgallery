@@ -229,27 +229,22 @@ var _initListItem = function(elem, index) {
 }
 
 
-
 $.fn.bflow = function(options) {
 	
 	_options = $.extend($.fn.bflow.defaults, options);
 
     return this.each(function(index){
 		
-		/*
 		if($.browser.safari) {
 			$(this).css('visibility', 'hidden');
 			var listElem = this;
-			console.log("befor load")
 			$(window).load(function(){
-				console.log("load...")
 				_initList(listElem);
-				$(this).css('visibility', 'visible');
+				$(listElem).css('visibility', 'visible');
 			});
 		} else {
-		*/
 			_initList(this);
-		//}
+		}
     });
 
 };
