@@ -1,7 +1,7 @@
 /*!
  * jQuery bFlow plugin: Simple Cover Flow Plugin
  * Examples and documentation at: http://github.com/bozz/jquery-bflow
- * version 0.2.1 (16-JUL-2010)
+ * version 0.3.0 (23-JUL-2010)
  * Author: Boris Searles (boris@lucidgardens.com)
  * Requires jQuery v1.3.2 or later
  * Dual licensed under the MIT and GPL licenses:
@@ -38,43 +38,47 @@ var _updateFlow = function(animate) {
 	var leftOffset, topOffset, elWidth, elHeight, padding = 0;
 	var completeFn = null;
 	
+	var afterFlowFn = function(){
+		_showCaption(_activeElem);
+
+		// adjust if width changed (i.e. if scrollbars get displayed)
+		if($(document.body).width() != _listWidth) {
+			_listWidth = $(document.body).width();
+			_centerX = _listWidth*0.5;
+			_updateFlow();
+			_showCaption(_activeElem);
+		}
+	}
+	
+	var config = {};
 	$(_listElem).children().each(function(i){
 		if($(this).hasClass('active')) {
-			leftOffset = _centerX - _imgData[i].w * 0.5;
-			topOffset = 0;
-			elWidth = _imgData[i].w;
-			elHeight = _imgData[i].h;
-			padding = _options.imagePadding;
-			isBefore = false;
-			completeFn = function(){
-				_showCaption(_activeElem);
+			config = {
+				left: (_centerX - _options.imagePadding - _imgData[i].w * 0.5) + 'px',
+				top: '0',
+				width: _imgData[i].w+'px',
+				height: _imgData[i].h+'px',
+				padding: _options.imagePadding+'px'
 			}
+			isBefore = false;
+			completeFn = afterFlowFn;
 		} else {
-			leftOffset = isBefore ? (_centerX - _imgData[_activeIndex].w*0.5 + (i-_activeIndex)*_imgData[i].tw + (i-_activeIndex)*10) : (_centerX+ _imgData[_activeIndex].w*0.5 + (i-_activeIndex-1)*_imgData[i].tw + (i+1-_activeIndex)*10);
-			topOffset = _options.thumbTopOffset==='auto' ? _centerY - _imgData[i].th*0.5 : _options.thumbTopOffset;
-			elWidth = _imgData[i].tw;
-			elHeight = _imgData[i].th;
-			padding = 3;
+			config = {
+				left: (isBefore ? (_centerX - _options.imagePadding - _imgData[_activeIndex].w*0.5 +  (i-_activeIndex)*_imgData[i].tw + (i-1-_activeIndex)*10) : (_centerX + _options.imagePadding + _imgData[_activeIndex].w*0.5 + (i-_activeIndex-1)*_imgData[i].tw + (i-_activeIndex)*10)) + 'px',
+				top: (_options.thumbTopOffset==='auto' ? _centerY - _imgData[i].th*0.5 : _options.thumbTopOffset) + 'px',
+				width: _imgData[i].tw+'px',
+				height: _imgData[i].th+'px',
+				padding: '3px'
+			}
 			completeFn = null;
 		}
 		
 		// TODO: only animate visible images...
 		if(animate) {
-			$(this).animate({
-				left: leftOffset+'px',
-				top: topOffset+'px',
-				width: elWidth+'px',
-				height: elHeight+'px',
-				padding: padding+'px'
-			},{ duration: _options.duration, easing: _options.easing, complete: completeFn });
+			$(this).animate(config, { duration: _options.duration, easing: _options.easing, complete: completeFn });
 		} else {
-			$(this).css({
-				left: leftOffset+'px',
-				top: topOffset+'px',
-				width: elWidth+'px',
-				height: elHeight+'px',
-				padding: padding+'px'
-			});
+			$(this).css(config);
+			afterFlowFn();
 		}
 		
 	});
@@ -87,11 +91,10 @@ var _showCaption = function(elem) {
 	caption.text(captionText);
 	
 	caption.css({
-		left: _centerX - _imgData[_activeIndex].w * 0.5,
+		left: _centerX - _options.imagePadding - _imgData[_activeIndex].w * 0.5,
 		top: _imgData[_activeIndex].h + _options.imagePadding*2,
 		width: _imgData[_activeIndex].w - 20
 	})
-
 	caption.fadeIn('fast');
 }
 
@@ -124,9 +127,6 @@ var _initList = function(elem) {
 	}).append(_listElem).append(captionElem);
 	container.append(wrapperElem);
 	
-	_listWidth = $(document.body).width();
-	_centerX = _listWidth*0.5;
-	
 	$(window).resize(function(){
 		_listWidth = $(document.body).width();
 		_centerX = _listWidth*0.5;
@@ -156,17 +156,18 @@ var _initList = function(elem) {
 		
 		// set list height to height of tallest image (needed for overflow:hidden)
 		_listHeight = imageHeight > _listHeight ? imageHeight : _listHeight;
+		
+		_initListItem(this, index);
 	});
 	
 	_listHeight += _options.imagePadding*2;
 	_centerY = _listHeight * 0.5;
 	$(_listElem).height(_listHeight);
-
-	// ...second pass to initialize list items
-	listItems.each(function(index) {
-		_initListItem(this, index);
-	});
 	
+	_listWidth = $(document.body).width();
+	_centerX = _listWidth*0.5;
+	
+	_updateFlow();
 }
 
 
@@ -175,9 +176,7 @@ var _initListItem = function(elem, index) {
 	$(elem).css({
 		backgroundColor: _options.backgroundColor,
 		position: 'absolute',
-		textAlign: 'center',
-		width: _elCounter==0 ? _imgData[index].w : _imgData[index].tw,
-		height: _elCounter==0 ? _imgData[index].h : _imgData[index].th
+		textAlign: 'center'
 	}).find('img').css({
 		cursor: 'pointer',
 		height: '100%',
@@ -186,29 +185,14 @@ var _initListItem = function(elem, index) {
 		width: '100%'
 	});
 	
-	var leftOffset, topOffset, padding  = 0;
 	if(!_activeElem) {
 		$(elem).addClass('active');
-		leftOffset = _centerX - _imgData[index].w*0.5;
-		padding = _options.imagePadding + 'px';
 		_activeElem = elem;
-		_showCaption(elem);
-	} else {
-		leftOffset = _centerX + _imgData[_activeIndex].w*0.5 + (_elCounter-1)*_imgData[index].tw + (_elCounter+1)*10;
-		topOffset  = _options.thumbTopOffset==='auto' ? _centerY - _imgData[index].th*0.5 : _options.thumbTopOffset;
-		padding = 3 + 'px';
-	}
-	
-	$(elem).css({
-		left: leftOffset,
-		top: topOffset,
-		padding: padding
-	});
+	} 
 	
 	_elCounter++;
 	
 	$(elem).click(function(){
-		
 		if(this != _activeElem) {
 			$("p.bf-caption").hide();
 			_activeIndex = 0;
@@ -221,7 +205,12 @@ var _initListItem = function(elem, index) {
 			$(_listElem).children().stop();
 			$(_listElem).find('.active').removeClass('active');
 			$(this).addClass('active');
-			_updateFlow(true);
+
+			// update width (changes if scrollbars disappear)
+			_listWidth = $(document.body).width();
+			_centerX = _listWidth*0.5;
+			
+			_updateFlow(_options.animate);
 		}
 	
 	});
@@ -251,6 +240,7 @@ $.fn.bflow = function(options) {
 
 // expose options
 $.fn.bflow.defaults = {
+	animate: true,
 	forceWidth: false,
 	forceHeight: false,
 	backgroundColor: 'black',
