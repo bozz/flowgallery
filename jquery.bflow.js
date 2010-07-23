@@ -1,7 +1,7 @@
 /*!
  * jQuery bFlow plugin: Simple Cover Flow Plugin
  * Examples and documentation at: http://github.com/bozz/jquery-bflow
- * version 0.2.0 (16-JUL-2010)
+ * version 0.2.1 (16-JUL-2010)
  * Author: Boris Searles (boris@lucidgardens.com)
  * Requires jQuery v1.3.2 or later
  * Dual licensed under the MIT and GPL licenses:
@@ -144,7 +144,7 @@ var _initList = function(elem) {
 			img.width(_options.forceWidth);
 		}
 		
-		var imageHeight = img.height();
+		var imageHeight = _options.forceHeight || img.height();
 		var thumbHeight = _options.thumbHeight === 'auto' ? Math.round(imageHeight*Number(_options.thumbWidth) / img.width()) : _options.thumbHeight;
 		
 		_imgData.push({ 
