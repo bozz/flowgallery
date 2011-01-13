@@ -1,5 +1,5 @@
 body {
-	background-color: #111;
+	background-color: #333;
 	color: #ccc;
 	font-family: helvetica, Arial, "MS Trebuchet", sans-serif;
 	font-size: 14px;
@@ -13,7 +13,7 @@ body {
 
 
 #wrapper {
-	width: 100%;
+	/* width: 100%; */
 }
 
 h1 {
@@ -22,6 +22,9 @@ h1 {
 	width: 600px;
 }
 
+#gallery li.loading {
+	background: url(../images/spinner.gif) no-repeat center center;
+}
 p.bf-caption {
 	color: #999;
 	font-size: 12px;

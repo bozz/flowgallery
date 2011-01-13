@@ -2,13 +2,28 @@
 =   bFlow jquery plugin   =
 ===========================
 
+v0.4.1 (2010-08-12)
+
+	- bugfix of activeIndex setting
+
+v0.4.0 (2010-08-11)
+
+	- added activeIndex config param, to allow setting of initially displayed image
+	- disabled dynamic image size loading (causing too many problems - need to test more thoroughly), currently requires setting of image sizes in img tag
+
+v0.3.0 (2010-07-23)
+
+	- fixed issue with centering when vertical scrollbars appeared
+	- added image padding into calculations for leftOffset for proper centering
+	- added "animate" option, if set to false then easing is turned off
+	- general code cleanup
 
 v0.2.0 (2010-07-16)
 
-  - refactored to use <ul> list for images
-  - support for flexible image sizes
-  - added demo
+	- refactored to use <ul> list for images
+	- support for flexible image sizes
+	- added demo
 
 v0.1.0 (2010-06-22)
 
-  - Basic working version with fixed image sizes.
+	- basic working version with fixed image sizes.

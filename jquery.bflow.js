@@ -1,7 +1,7 @@
 /*!
  * jQuery bFlow plugin: Simple Cover Flow Plugin
  * Examples and documentation at: http://github.com/bozz/jquery-bflow
- * version 0.3.0 (23-JUL-2010)
+ * version 0.4.1 (12-AUG-2010)
  * Author: Boris Searles (boris@lucidgardens.com)
  * Requires jQuery v1.3.2 or later
  * Dual licensed under the MIT and GPL licenses:
@@ -65,7 +65,7 @@ var _updateFlow = function(animate) {
 		} else {
 			config = {
 				left: (isBefore ? (_centerX - _options.imagePadding - _imgData[_activeIndex].w*0.5 +  (i-_activeIndex)*_imgData[i].tw + (i-1-_activeIndex)*10) : (_centerX + _options.imagePadding + _imgData[_activeIndex].w*0.5 + (i-_activeIndex-1)*_imgData[i].tw + (i-_activeIndex)*10)) + 'px',
-				top: (_options.thumbTopOffset==='auto' ? _centerY - _imgData[i].th*0.5 : _options.thumbTopOffset) + 'px',
+				top: (_options.thumbTopOffset==='auto' ? _centerY : _options.thumbTopOffset) - _imgData[i].th*0.5 + 'px',
 				width: _imgData[i].tw+'px',
 				height: _imgData[i].th+'px',
 				padding: '3px'
@@ -95,6 +95,11 @@ var _showCaption = function(elem) {
 		top: _imgData[_activeIndex].h + _options.imagePadding*2,
 		width: _imgData[_activeIndex].w - 20
 	})
+	
+	// set height of caption as bottom margin for list
+	var fullHeight = $(_listElem).height() + caption.height() + 40;
+	$(_listElem).parent().height(fullHeight);
+
 	caption.fadeIn('fast');
 }
 
@@ -147,6 +152,8 @@ var _initList = function(elem) {
 		var imageHeight = _options.forceHeight || img.height();
 		var thumbHeight = _options.thumbHeight === 'auto' ? Math.round(imageHeight*Number(_options.thumbWidth) / img.width()) : _options.thumbHeight;
 		
+		//console.log("img data: ", imageHeight, img.width(), thumbHeight, _options.thumbWidth);
+		
 		_imgData.push({ 
 			h: imageHeight,	
 			w: img.width(),
@@ -185,9 +192,10 @@ var _initListItem = function(elem, index) {
 		width: '100%'
 	});
 	
-	if(!_activeElem) {
+	if(!_activeElem && _options.activeIndex==index) {
 		$(elem).addClass('active');
 		_activeElem = elem;
+		_activeIndex = index;
 	} 
 	
 	_elCounter++;
@@ -223,23 +231,14 @@ $.fn.bflow = function(options) {
 	_options = $.extend($.fn.bflow.defaults, options);
 
     return this.each(function(index){
-		
-		if($.browser.safari) {
-			$(this).css('visibility', 'hidden');
-			var listElem = this;
-			$(window).load(function(){
-				_initList(listElem);
-				$(listElem).css('visibility', 'visible');
-			});
-		} else {
-			_initList(this);
-		}
+		_initList(this);
     });
 
 };
 
 // expose options
 $.fn.bflow.defaults = {
+	activeIndex: 0, 			// index of image that is initially active
 	animate: true,
 	forceWidth: false,
 	forceHeight: false,
