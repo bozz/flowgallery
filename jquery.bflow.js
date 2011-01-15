@@ -1,7 +1,7 @@
 /*!
  * jQuery bFlow plugin: Simple Cover Flow Plugin
  * Examples and documentation at: http://github.com/bozz/jquery-bflow
- * version 0.5.0 (13-JAN-2011)
+ * version 0.5.0 (14-JAN-2011)
  * Author: Boris Searles (boris@lucidgardens.com)
  * Requires jQuery v1.3.2 or later
  * Dual licensed under the MIT and GPL licenses:
@@ -31,6 +31,7 @@ $.fn.bflow.defaults = {
   thumbHeight: 'auto',
   thumbTopOffset: 'auto',  // top offset in pixels or 'auto' for centering images within list height
   imagePadding: 4,
+  loadingClass: "loading",
   easing: 'linear',
   duration: 'slow'
 };
@@ -42,6 +43,7 @@ var _options = {};
 var _elCounter    = 0;
 var _activeIndex 	= 0;      // index of initial active element
 var _activeElem   = false;	// reference to active <li> dom element
+var _activeLoaded = false;  // has active image been loaded?
 var _listElem     = false;	// reference to <ul> list dom element
 
 var _listWidth  = 0;	// list width (default: screen width)
@@ -97,6 +99,7 @@ var _initList = function(elem) {
 
 
   var listItems = $(_listElem).children();
+  var activeImageHeight = false;
 
   // loop through list items to extract image data and determine list height
   listItems.each(function(index) {
@@ -105,28 +108,27 @@ var _initList = function(elem) {
       img.width(_options.forceWidth);
     }
 
-    var isLoaded = _isImageLoaded(img.get(0));
+    var isLoaded = _isImageSizeLoaded(img.get(0));
     var dimensions = _getImageDimensions(img, isLoaded);
-    var imageHeight = dimensions.h;
     _imgData.push(dimensions);
 
-    if(!isLoaded) {
-      _addLoadHandler(img, index);
+    _addLoadHandler(img, index);
+
+    if(index==_activeIndex && isLoaded) {
+      activeImageHeight = dimensions.h;
     }
-
-    //console.log("img data: ", imageHeight, img.width(), thumbHeight, _options.thumbWidth);
-
-    
 
     _initListItem(this, index);
   });
 
-  
   _listWidth = $(document.body).width();
   _centerX = _listWidth*0.5;
 
-  _centerY = _options.thumbTopOffset==='auto' ? _listHeight * 0.5 : _options.thumbTopOffset;
-
+  if(activeImageHeight) {
+    _centerY = _options.thumbTopOffset=='auto' ? activeImageHeight*0.5 : _options.thumbTopOffset;
+  } else {
+    _centerY = _options.thumbTopOffset=='auto' ? _listHeight*0.5 : _options.thumbTopOffset+_options.thumbHeight*0.5;
+  }
   _updateFlow();
 }
 
@@ -253,10 +255,9 @@ var _getImageDimensions = function(img, isLoaded) {
   var isLoaded = isLoaded || false;
 
   if(isLoaded) {
-    var imgHeight = _options.forceHeight || img.attr('naturalHeight');
-    //console.log("h: ", imgHeight);
-    var thumbHeight = _options.thumbHeight === 'auto' ? Math.round(imgHeight*Number(_options.thumbWidth) / img.attr('naturalWidth')) : _options.thumbHeight;
-    var imgWidth = img.attr('naturalWidth');
+    var imgWidth  = _options.forceWidth || img.attr('naturalWidth') || img.attr('width') 
+    var imgHeight = _options.forceHeight || img.attr('naturalHeight') || img.attr('height')
+    var thumbHeight = _options.thumbHeight === 'auto' ? Math.round(imgHeight*Number(_options.thumbWidth) / imgWidth) : _options.thumbHeight;
   } else {
     var thumbHeight = _options.thumbHeight === 'auto' ? 50 : _options.thumbHeight;
     var imgHeight = thumbHeight;
@@ -270,7 +271,12 @@ var _getImageDimensions = function(img, isLoaded) {
 
 
 // checks if image has been fully loaded
-var _isImageLoaded = function(img) {
+var _isImageSizeLoaded = function(img) {
+  if((_options.forceWidth && _options.forceHeight) || 
+     (img.width > _options.thumbWidth && img.height > 20)) {
+    return true;
+  }
+
   if(!img.complete) {
     return false;
   }
@@ -281,12 +287,9 @@ var _isImageLoaded = function(img) {
 }
 
 
-_activeLoaded = false;
-
 // handle loading of incomplete images
 var _addLoadHandler = function(img, index) {
 
-  _options.loadingClass = "loading";
   img.hide().parent().addClass(_options.loadingClass).css({
     height: _imgData[index].th,
     width: _imgData[index].tw
