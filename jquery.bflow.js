@@ -64,7 +64,6 @@ var _imgData = [];
 
 // initialize:
 var _initList = function(elem) {
-
   _listElem = elem; 
 
   var container = $(_listElem).css({
@@ -134,7 +133,6 @@ var _initList = function(elem) {
 
 
 var _initListItem = function(elem, index) {
-
   $(elem).css({
     backgroundColor: _options.backgroundColor,
     position: 'absolute',
@@ -152,30 +150,7 @@ var _initListItem = function(elem, index) {
     _activeElem = elem;
     _activeIndex = index;
   }
-
   _elCounter++;
-
-  $(elem).click(function(){
-    if(this != _activeElem) {
-      $("p.bf-caption").hide();
-      _activeIndex = 0;
-      _activeElem = this;
-      $(this).parent().children().each(function(i){
-        if(_activeElem==this) {
-          _activeIndex = i;
-        }
-      });
-      $(_listElem).children().stop();
-      $(_listElem).find('.active').removeClass('active');
-      $(this).addClass('active');
-
-      // update width (changes if scrollbars disappear)
-      _listWidth = $(document.body).width();
-      _centerX = _listWidth*0.5;
-
-      _updateFlow(_options.animate);
-    }
-  });
 }
 
 
@@ -221,10 +196,10 @@ var _updateFlow = function(animate) {
 
     // TODO: only animate visible images...
     if(animate) {
-      $(this).animate(config, { duration: _options.duration, easing: _options.easing, complete: completeFn });
+      $(this).stop().animate(config, { duration: _options.duration, easing: _options.easing, complete: completeFn });
     } else {
       $(this).css(config);
-      afterFlowFn();
+      if(completeFn) { completeFn() }
     }
 
   });
@@ -232,8 +207,11 @@ var _updateFlow = function(animate) {
 
 
 var _showCaption = function(elem) {
+  var img = $(elem).find('img').get(0);
+  if(!_isImageSizeLoaded(img)) { return false; }
+
   var caption = $(elem).parent().parent().find('p.bf-caption');
-  var captionText = $(elem).find('img').attr('title');
+  var captionText = img.title;
   caption.text(captionText);
 
   caption.css({
@@ -255,9 +233,17 @@ var _getImageDimensions = function(img, isLoaded) {
   var isLoaded = isLoaded || false;
 
   if(isLoaded) {
-    var imgWidth  = _options.forceWidth || img.attr('naturalWidth') || img.attr('width') 
-    var imgHeight = _options.forceHeight || img.attr('naturalHeight') || img.attr('height')
-    var thumbHeight = _options.thumbHeight === 'auto' ? Math.round(imgHeight*Number(_options.thumbWidth) / imgWidth) : _options.thumbHeight;
+    var img_raw = img.get(0);
+    if(typeof img_raw.naturalWidth != 'undefined') {
+      var imgWidth  = _options.forceWidth || img.attr('naturalWidth') || img.attr('width') 
+      var imgHeight = _options.forceHeight || img.attr('naturalHeight') || img.attr('height')
+    } else {
+      var tmpImg = new Image();
+      tmpImg.src = img.attr('src');
+      var imgWidth = tmpImg.width;
+      var imgHeight = tmpImg.height;
+    }
+    var thumbHeight =  _options.thumbHeight === 'auto' ? Math.round(imgHeight*Number(_options.thumbWidth) / imgWidth) : _options.thumbHeight;
   } else {
     var thumbHeight = _options.thumbHeight === 'auto' ? 50 : _options.thumbHeight;
     var imgHeight = thumbHeight;
@@ -314,10 +300,37 @@ var _addLoadHandler = function(img, index) {
         }
         img.parent().animate(animateParams);
       }
+
+      _addClickHandler(img.parent());
     }
   })
   .bind('error', function () {
     $(this).css('visibility', 'visible').parent().removeClass(_options.loadingClass);
+  });
+}
+
+// add click handler to listElement <li> containing image
+var _addClickHandler = function(elem) {
+  $(elem).click(function(){
+    if(this != _activeElem) {
+      $("p.bf-caption").hide();
+      _activeIndex = 0;
+      _activeElem = this;
+      $(this).parent().children().each(function(i){
+        if(_activeElem==this) {
+          _activeIndex = i;
+        }
+      });
+      $(_listElem).children().stop();
+      $(_listElem).find('.active').removeClass('active');
+      $(this).addClass('active');
+
+      // update width (changes if scrollbars disappear)
+      _listWidth = $(document.body).width();
+      _centerX = _listWidth*0.5;
+
+      _updateFlow(_options.animate);
+    }
   });
 }
 
