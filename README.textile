@@ -50,7 +50,7 @@ The only CSS styling needed, is for the loading image as specified by the 'loadi
 
 <pre>
 #gallery li.loading {
-	background: url(../images/spinner.gif) no-repeat center center;
+  background: url(../images/spinner.gif) no-repeat center center;
 }
 </pre>
 

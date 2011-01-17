@@ -1,6 +1,12 @@
-===========================
-=   bFlow jquery plugin   =
-===========================
+=================================
+=   FlowGallery jQuery Plugin   =
+=================================
+
+v0.5.0 (2011-01-14)
+
+	- enable dynamic image size loading (original size of image used)
+	- included image preloader
+	- improved performance and browser compatibility
 
 v0.4.1 (2010-08-12)
 
