@@ -1,6 +1,6 @@
 /*!
- * jQuery bFlow plugin: Simple Cover Flow Plugin
- * Examples and documentation at: http://github.com/bozz/jquery-bflow
+ * jQuery flowGallery plugin: Cover Flow Image Gallery
+ * Examples and documentation at: http://github.com/bozz/flowGallery
  * version 0.5.0 (14-JAN-2011)
  * Author: Boris Searles (boris@lucidgardens.com)
  * Requires jQuery v1.3.2 or later
@@ -12,8 +12,8 @@
 (function($) { 
 
 /* plugin point of entry */
-$.fn.bflow = function(options) {
-  _options = $.extend($.fn.bflow.defaults, options);
+$.fn.flowGallery = function(options) {
+  _options = $.extend($.fn.flowGallery.defaults, options);
   return this.each(function(index){
     _initList(this);
   });
@@ -21,7 +21,7 @@ $.fn.bflow = function(options) {
 
 
 // expose options
-$.fn.bflow.defaults = {
+$.fn.flowGallery.defaults = {
   activeIndex: 0, // index of image that is initially active
   animate: true,
   forceWidth: false,
