@@ -3,7 +3,7 @@ h1. FlowGallery
 
 jQuery plugin for image galleries with a cover flow effect.
 
-Demo: http://lucidgardens.com/flowgallery:http://lucidgardens.com/flowgallery
+Demo: "http://lucidgardens.com/flowgallery":http://lucidgardens.com/flowgallery
 
 h2. Usage
 
