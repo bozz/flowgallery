@@ -3,7 +3,7 @@ h1. FlowGallery
 
 jQuery plugin for image galleries with a cover flow effect.
 
-Demo: http://lucidgardens.com/flowgallery
+Demo: http://lucidgardens.com/flowgallery:http://lucidgardens.com/flowgallery
 
 h2. Usage
 
@@ -40,7 +40,7 @@ There are a number of optional configuration parameters that can be used to cust
 * thumbHeight - ('auto'|integer) the height of image thumbnails or 'auto' calculate based on aspect ratio form thumbWidth, default: @"auto"@
 * thumbTopOffset - ('auto'|integer) the top offset of all thumbnails or 'auto' to center based on initial active image, default: @"auto"@
 * imagePadding - (integer) the visible padding around active images, default: @4@
-* loadingClass - (string) CSS class applied to <li> elements while image is loading, should be used to specify background loading image, default: @"loading"@
+* loadingClass - (string) CSS class applied to &lt;li&gt; elements while image is loading, should be used to specify background loading image, default: @"loading"@
 * easing - (string) easing method to use for animation, default: @"linear"@
 * duration - (string|integer) duration setting for animations, default: @"slow"@
 
