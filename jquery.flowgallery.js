@@ -1,7 +1,7 @@
 /*!
  * jQuery flowGallery plugin: Cover Flow Image Gallery
  * Examples and documentation at: http://github.com/bozz/flowGallery
- * version 0.5.0 (14-JAN-2011)
+ * version 0.5.1 (18-JAN-2011)
  * Author: Boris Searles (boris@lucidgardens.com)
  * Requires jQuery v1.3.2 or later
  * Dual licensed under the MIT and GPL licenses:
@@ -9,7 +9,7 @@
  * http://www.gnu.org/licenses/gpl.html
  */
 
-(function($) { 
+(function($) {
 
 /* plugin point of entry */
 $.fn.flowGallery = function(options) {
@@ -283,7 +283,7 @@ var _addLoadHandler = function(img, index) {
     width: _imgData[index].tw
   });
 
-  img.bind('load readystatechange', function(e){
+  var loadCompleteFn = function(e){
     if (this.complete || (this.readyState === 'complete' && e.type ==='readystatechange')) {
       $(this).css('visibility', 'visible').parent().removeClass(_options.loadingClass);
       $(this).fadeIn();
@@ -291,10 +291,10 @@ var _addLoadHandler = function(img, index) {
       var dimensions = _getImageDimensions(img, true);
       _imgData[index] = dimensions;
 
-      if(index===_activeIndex) {
+      if(index===_options.activeIndex) {
         _activeLoaded = true;
         _centerY = _options.thumbTopOffset==='auto' ? dimensions.h*0.5 : _options.thumbTopOffset;
-        _updateFlow();
+        if(e) { _updateFlow(); }
       } else {
         var animateParams = { height: dimensions.th };
         if(_activeLoaded) {
@@ -305,10 +305,18 @@ var _addLoadHandler = function(img, index) {
 
       _addClickHandler(img.parent());
     }
-  })
-  .bind('error', function () {
-    $(this).css('visibility', 'visible').parent().removeClass(_options.loadingClass);
-  });
+  }
+
+  var raw_img = img.get(0);
+  if(raw_img.complete) {
+    loadCompleteFn.call(raw_img);
+  } else {
+    img.bind('load readystatechange', loadCompleteFn)
+      .bind('error', function () {
+        $(this).css('visibility', 'visible').parent().removeClass(_options.loadingClass);
+      });
+  }
+
 };
 
 // add click handler to listElement <li> containing image
