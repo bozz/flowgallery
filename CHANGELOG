@@ -2,6 +2,12 @@
 =   FlowGallery jQuery Plugin   =
 =================================
 
+v0.6.0 (2011-02-26)
+
+	- added navigation with arrow keys and config param	"enableKeyNavigation"
+	- added config param "thumbPadding" for specifying border of thumbnails
+	- bugfix: don't display caption if title is empty (thanks to bakman2 for fixing this)
+
 v0.5.1 (2011-01-18)
 
 	- bugfix for attaching load handler on images

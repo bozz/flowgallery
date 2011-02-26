@@ -33,13 +33,15 @@ There are a number of optional configuration parameters that can be used to cust
 
 * activeIndex - (integer) the index of the image that should initially be loaded as active, default: @0@
 * animate - (boolean) should the image transitions be animated, default: @true@
+* enableKeyNavigation - (boolean) specifies if arrow keys (left and right) can be used for navigation, default: @true@
 * forceWidth - (false|integer) if specified, sets all images to this width, default: @false@
 * forceHeight - (false|integer) if specified, sets all images to this height, default: @false@
 * backgroundColor - (string) the background color of the border and caption, default: @"black"@
 * thumbWidth - (integer) the width of the image thumbnails, default: @100@
 * thumbHeight - ('auto'|integer) the height of image thumbnails or 'auto' calculate based on aspect ratio form thumbWidth, default: @"auto"@
 * thumbTopOffset - ('auto'|integer) the top offset of all thumbnails or 'auto' to center based on initial active image, default: @"auto"@
-* imagePadding - (integer) the visible padding around active images, default: @4@
+* imagePadding - (integer) the visible border around active images, default: @4@
+* thumbPadding - (integer) the visible border around thumbnails, default: @3@
 * loadingClass - (string) CSS class applied to &lt;li&gt; elements while image is loading, should be used to specify background loading image, default: @"loading"@
 * easing - (string) easing method to use for animation, default: @"linear"@
 * duration - (string|integer) duration setting for animations, default: @"slow"@

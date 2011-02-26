@@ -1,7 +1,7 @@
 /*!
  * jQuery flowGallery plugin: Cover Flow Image Gallery
  * Examples and documentation at: http://github.com/bozz/flowGallery
- * version 0.5.1 (18-JAN-2011)
+ * version 0.6.0 (26-FEB-2011)
  * Author: Boris Searles (boris@lucidgardens.com)
  * Requires jQuery v1.3.2 or later
  * Dual licensed under the MIT and GPL licenses:
@@ -22,18 +22,20 @@ $.fn.flowGallery = function(options) {
 
 // expose options
 $.fn.flowGallery.defaults = {
-  activeIndex: 0, // index of image that is initially active
+  activeIndex: 0,          // index of image that is initially active
   animate: true,
+  enableKeyNavigation: true,  // enables forward/backward arrow keys for next/last navigation
   forceWidth: false,
   forceHeight: false,
   backgroundColor: 'black',
-  thumbWidth: 100,  // required, currently cannot be 'auto'
+  thumbWidth: 100,         // required, currently cannot be 'auto'
   thumbHeight: 'auto',
   thumbTopOffset: 'auto',  // top offset in pixels or 'auto' for centering images within list height
-  imagePadding: 4,
-  loadingClass: "loading",
+  imagePadding: 4,         // border of active image
+  thumbPadding: 3,         // border of thumbnails
+  loadingClass: "loading", // css class applied to <li> elements of loading images
   easing: 'linear',
-  duration: 'slow'
+  duration: 900
 };
 
 // applied options (overridden defaults)
@@ -129,6 +131,17 @@ var _initList = function(elem) {
   } else {
     _centerY = _options.thumbTopOffset==='auto' ? _listHeight*0.5 : _options.thumbTopOffset+_options.thumbHeight*0.5;
   }
+
+  if(_options.enableKeyNavigation) {
+    $(document).keydown(function(e) {
+      if(e.keyCode===37) { // right arrow key
+        _flowInDir(-1);
+      } else if(e.keyCode===39) { // left arrow key
+        _flowInDir(1);
+      }
+    });
+  }
+
   _updateFlow();
 };
 
@@ -190,7 +203,7 @@ var _updateFlow = function(animate) {
         top: (_centerY - _imgData[i].th*0.5) + 'px',
         width: _imgData[i].tw+'px',
         height: _imgData[i].th+'px',
-        padding: '3px'
+        padding: _options.thumbPadding+'px'
       };
       completeFn = null;
     }
@@ -214,20 +227,20 @@ var _showCaption = function(elem) {
   var caption = $(elem).parent().parent().find('p.bf-caption');
   var captionText = img.title;
   if(img.title.length > 0){
-  caption.text(captionText);
+    caption.text(captionText);
 
-  caption.css({
-    left: _centerX - _options.imagePadding - _imgData[_activeIndex].w * 0.5,
-    top: _imgData[_activeIndex].h + _options.imagePadding*2,
-    width: _imgData[_activeIndex].w - 20
-  });
+    caption.css({
+      left: _centerX - _options.imagePadding - _imgData[_activeIndex].w * 0.5,
+      top: _imgData[_activeIndex].h + _options.imagePadding*2,
+      width: _imgData[_activeIndex].w - 20
+    });
 
-  // set height of caption as bottom margin for list
-  var fullHeight = $(_listElem).height() + caption.height() + 40;
-  $(_listElem).parent().height(fullHeight);
+    // set height of caption as bottom margin for list
+    var fullHeight = $(_listElem).height() + caption.height() + 40;
+    $(_listElem).parent().height(fullHeight);
 
-  caption.fadeIn('fast');
- }
+    caption.fadeIn('fast');
+  }
 };
 
 
@@ -307,7 +320,7 @@ var _addLoadHandler = function(img, index) {
 
       _addClickHandler(img.parent());
     }
-  }
+  };
 
   var raw_img = img.get(0);
   if(raw_img.complete) {
@@ -333,18 +346,38 @@ var _addClickHandler = function(elem) {
           _activeIndex = i;
         }
       });
-      $(_listElem).children().stop();
-      $(_listElem).find('.active').removeClass('active');
-      $(this).addClass('active');
-
-      // update width (changes if scrollbars disappear)
-      _listWidth = $(document.body).width();
-      _centerX = _listWidth*0.5;
-
+      _prepareFlow();
       _updateFlow(_options.animate);
     }
   });
 };
+
+// trigger flow in direction from current active element;
+// positive value flows to the right, negative values to the left;
+var _flowInDir = function(dir) {
+  if(dir<0 && _activeIndex > 0) {
+    _activeIndex += dir;
+  } else if(dir>0 && _activeIndex < _imgData.length-1) {
+    _activeIndex += dir;
+  } else {
+    return false;
+  }
+  _activeElem = $(_listElem).children().get(_activeIndex);
+
+  _prepareFlow();
+  _updateFlow(_options.animate);
+}
+
+
+var _prepareFlow = function(activeElem) {
+  $("p.bf-caption").hide();
+  $(_listElem).find('.active').removeClass('active');
+  $(_activeElem).addClass('active');
+
+  // update width (changes if scrollbars disappear)
+  _listWidth = $(document.body).width();
+  _centerX = _listWidth*0.5;
+}
 
 
 // set list height to height of tallest image (needed for overflow:hidden)
