@@ -34,6 +34,7 @@ There are a number of optional configuration parameters that can be used to cust
 * activeIndex - (integer) the index of the image that should initially be loaded as active, default: @0@
 * animate - (boolean) should the image transitions be animated, default: @true@
 * enableKeyNavigation - (boolean) specifies if arrow keys (left and right) can be used for navigation, default: @true@
+* forwardOnActiveClick - (boolean) specifies if next image should be shown when clicking on active image, default: @false@
 * forceWidth - (false|integer) if specified, sets all images to this width, default: @false@
 * forceHeight - (false|integer) if specified, sets all images to this height, default: @false@
 * backgroundColor - (string) the background color of the border and caption, default: @"black"@

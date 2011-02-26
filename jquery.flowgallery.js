@@ -1,7 +1,7 @@
 /*!
  * jQuery flowGallery plugin: Cover Flow Image Gallery
  * Examples and documentation at: http://github.com/bozz/flowGallery
- * version 0.6.1 (26-FEB-2011)
+ * version 0.6.2 (26-FEB-2011)
  * Author: Boris Searles (boris@lucidgardens.com)
  * Requires jQuery v1.3.2 or later
  * Dual licensed under the MIT and GPL licenses:
@@ -25,7 +25,8 @@ $.fn.flowGallery = function(options) {
 $.fn.flowGallery.defaults = {
   activeIndex: 0,          // index of image that is initially active
   animate: true,
-  enableKeyNavigation: true,  // enables forward/backward arrow keys for next/last navigation
+  enableKeyNavigation: true,   // enables forward/backward arrow keys for next/last navigation
+  forwardOnActiveClick: false, // should clicking on active image, show next image?
   forceWidth: false,
   forceHeight: false,
   backgroundColor: 'black',
@@ -129,17 +130,20 @@ var _initList = function(elem) {
     _centerY = _options.thumbTopOffset==='auto' ? _listHeight*0.5 : _options.thumbTopOffset+_options.thumbHeight*0.5;
   }
 
-  if(_options.enableKeyNavigation) {
-    $(document).keydown(function(e) {
-      if(e.keyCode===37) { // right arrow key
-        _flowInDir(-1);
-      } else if(e.keyCode===39) { // left arrow key
-        _flowInDir(1);
-      }
-    });
+  if(_options.enableKeyNavigation===true) {
+    $(document).unbind('keydown', _handleKeyEvents).keydown(_handleKeyEvents);
   }
 
   _updateFlow();
+};
+
+
+var _handleKeyEvents = function(e) {
+  if(e.keyCode===37) { // right arrow key
+    _flowInDir(-1);
+  } else if(e.keyCode===39) { // left arrow key
+    _flowInDir(1);
+  }
 };
 
 
@@ -345,6 +349,10 @@ var _addClickHandler = function(elem) {
       });
       _prepareFlow();
       _updateFlow(_options.animate);
+    } else {
+      if(_options.forwardOnActiveClick===true) {
+        _flowInDir(1);
+      }
     }
   });
 };

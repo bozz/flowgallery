@@ -2,6 +2,11 @@
 =   FlowGallery jQuery Plugin   =
 =================================
 
+v0.6.2 (2011-02-26)
+
+	- added config param "forwardOnActiveClick", if true will move forward to	next image when active image is clicked
+	- bugfix: reset navigation key bindings on initialization to avoid multiple	calls
+
 v0.6.1 (2011-02-26)
 
 	- bugfix: fixed initialization of private variables - so that they get reset properly on subsequent call to flowgallery
