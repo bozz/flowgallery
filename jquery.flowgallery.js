@@ -213,6 +213,7 @@ var _showCaption = function(elem) {
 
   var caption = $(elem).parent().parent().find('p.bf-caption');
   var captionText = img.title;
+  if(img.title.length > 0){
   caption.text(captionText);
 
   caption.css({
@@ -226,6 +227,7 @@ var _showCaption = function(elem) {
   $(_listElem).parent().height(fullHeight);
 
   caption.fadeIn('fast');
+ }
 };
 
 
