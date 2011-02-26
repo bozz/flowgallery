@@ -44,7 +44,7 @@ There are a number of optional configuration parameters that can be used to cust
 * thumbPadding - (integer) the visible border around thumbnails, default: @3@
 * loadingClass - (string) CSS class applied to &lt;li&gt; elements while image is loading, should be used to specify background loading image, default: @"loading"@
 * easing - (string) easing method to use for animation, default: @"linear"@
-* duration - (string|integer) duration setting for animations, default: @"slow"@
+* duration - (string|integer) duration setting for animations, default: @900@
 
 The gallery works best if full width of browser window can be used. No direct CSS styling of gallery list required, the plugin sets everything up as needed. Be careful if you do any CSS styling of the list, this could break functionality.
 

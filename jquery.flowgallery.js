@@ -1,7 +1,7 @@
 /*!
  * jQuery flowGallery plugin: Cover Flow Image Gallery
  * Examples and documentation at: http://github.com/bozz/flowGallery
- * version 0.6.0 (26-FEB-2011)
+ * version 0.6.1 (26-FEB-2011)
  * Author: Boris Searles (boris@lucidgardens.com)
  * Requires jQuery v1.3.2 or later
  * Dual licensed under the MIT and GPL licenses:
@@ -14,6 +14,7 @@
 /* plugin point of entry */
 $.fn.flowGallery = function(options) {
   _options = $.extend($.fn.flowGallery.defaults, options);
+
   return this.each(function(index){
     _initList(this);
   });
@@ -35,38 +36,34 @@ $.fn.flowGallery.defaults = {
   thumbPadding: 3,         // border of thumbnails
   loadingClass: "loading", // css class applied to <li> elements of loading images
   easing: 'linear',
-  duration: 900
+  duration: 900            // animation duration (higher value = slower speed)
 };
 
 // applied options (overridden defaults)
 var _options = {};
 
-
-var _elCounter    = 0;
-var _activeIndex  = 0;      // index of initial active element
-var _activeElem   = false;  // reference to active <li> dom element
-var _activeLoaded = false;  // has active image been loaded?
-var _listElem     = false;  // reference to <ul> list dom element
-
-var _listWidth  = 0;  // list width (default: screen width)
-var _listHeight = 0;  // list height (height of highest image)
-var _centerX    = 0;  // horizontal center within list
-var _centerY    = 0;  // vertical center within list
-
-
-// stores initial image data (height, width, thumbHeight, thumbWidth)
-// format: [{
-//     h: 400,    // full size image height
-//     w: 200,    // full size image width
-//     th: 100,   // thumb height
-//     tw: 50     // thumb width
-// }]
-var _imgData = [];
-
-
 // initialize:
 var _initList = function(elem) {
-  _listElem = elem; 
+  _elCounter    = 0;
+  _activeIndex  = 0;      // index of initial active element
+  _activeElem   = false;  // reference to active <li> dom element
+  _activeLoaded = false;  // has active image been loaded?
+  _listElem     = false;  // reference to <ul> list dom element
+  _listWidth  = 0;  // list width (default: screen width)
+  _listHeight = 0;  // list height (height of highest image)
+  _centerX    = 0;  // horizontal center within list
+  _centerY    = 0;
+
+  // stores initial image data (height, width, thumbHeight, thumbWidth)
+  // format: [{
+  //     h: 400,    // full size image height
+  //     w: 200,    // full size image width
+  //     th: 100,   // thumb height
+  //     tw: 50     // thumb width
+  // }]
+  _imgData = [];
+
+  _listElem = elem;
 
   var container = $(_listElem).css({
     listStyle: 'none',

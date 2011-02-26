@@ -2,6 +2,10 @@
 =   FlowGallery jQuery Plugin   =
 =================================
 
+v0.6.1 (2011-02-26)
+
+	- bugfix: fixed initialization of private variables - so that they get reset properly on subsequent call to flowgallery
+
 v0.6.0 (2011-02-26)
 
 	- added navigation with arrow keys and config param	"enableKeyNavigation"
