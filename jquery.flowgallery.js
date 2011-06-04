@@ -1,7 +1,7 @@
 /*!
  * jQuery flowGallery plugin: Cover Flow Image Gallery
  * Examples and documentation at: http://github.com/bozz/flowGallery
- * version 0.6.2 (26-FEB-2011)
+ * version 0.6.3 (04-JUN-2011)
  * Author: Boris Searles (boris@lucidgardens.com)
  * Requires jQuery v1.3.2 or later
  * Dual licensed under the MIT and GPL licenses:
@@ -54,6 +54,7 @@ var _initList = function(elem) {
   _listHeight = 0;  // list height (height of highest image)
   _centerX    = 0;  // horizontal center within list
   _centerY    = 0;
+  _container  = null; // parent element
 
   // stores initial image data (height, width, thumbHeight, thumbWidth)
   // format: [{
@@ -66,7 +67,7 @@ var _initList = function(elem) {
 
   _listElem = elem;
 
-  var container = $(_listElem).css({
+  _container = $(_listElem).css({
     listStyle: 'none',
     overflow: 'hidden',
     marginLeft: '0',
@@ -88,10 +89,10 @@ var _initList = function(elem) {
   $(wrapperElem).addClass('bf-wrapper').css({
     position: 'relative'
   }).append(_listElem).append(captionElem);
-  container.append(wrapperElem);
+  _container.append(wrapperElem);
 
   $(window).resize(function(){
-    _listWidth = $(document.body).width();
+    _listWidth = _container.width();
     _centerX = _listWidth*0.5;
     _updateFlow();
     _showCaption(_activeElem);
@@ -121,7 +122,7 @@ var _initList = function(elem) {
     _initListItem(this, index);
   });
 
-  _listWidth = $(document.body).width();
+  _listWidth = _container.width();
   _centerX = _listWidth*0.5;
 
   if(activeImageHeight) {
@@ -178,8 +179,8 @@ var _updateFlow = function(animate) {
     _showCaption(_activeElem);
 
     // adjust if width changed (i.e. if scrollbars get displayed)
-    if($(document.body).width() !== _listWidth) {
-      _listWidth = $(document.body).width();
+    if(_container.width() !== _listWidth) {
+      _listWidth = _container.width();
       _centerX = _listWidth*0.5;
       _updateFlow();
       _showCaption(_activeElem);
@@ -253,8 +254,8 @@ var _getImageDimensions = function(img, isLoaded) {
   if(isLoaded) {
     var img_raw = img.get(0);
     if(typeof img_raw.naturalWidth !== 'undefined') {
-      imgWidth  = _options.forceWidth || img.attr('naturalWidth') || img.attr('width');
-      imgHeight = _options.forceHeight || img.attr('naturalHeight') || img.attr('height');
+      imgWidth  = _options.forceWidth || img_raw.naturalWidth || img_raw.width;
+      imgHeight = _options.forceHeight || img_raw.naturalHeight || img_raw.height;
     } else {
       var tmpImg = new Image();
       tmpImg.src = img.attr('src');
@@ -380,7 +381,7 @@ var _prepareFlow = function(activeElem) {
   $(_activeElem).addClass('active');
 
   // update width (changes if scrollbars disappear)
-  _listWidth = $(document.body).width();
+  _listWidth = _container.width();
   _centerX = _listWidth*0.5;
 }
 

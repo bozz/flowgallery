@@ -2,6 +2,12 @@
 =   FlowGallery jQuery Plugin   =
 =================================
 
+v0.6.3 (2011-06-04)
+
+	- bugfix: calculate animations from width of parent container and not
+	document (thanks to pinmc for fix)
+  - bugfix: fix initial image width calculation in jQuery v1.6.0
+
 v0.6.2 (2011-02-26)
 
 	- added config param "forwardOnActiveClick", if true will move forward to	next image when active image is clicked
@@ -15,7 +21,7 @@ v0.6.0 (2011-02-26)
 
 	- added navigation with arrow keys and config param	"enableKeyNavigation"
 	- added config param "thumbPadding" for specifying border of thumbnails
-	- bugfix: don't display caption if title is empty (thanks to bakman2 for fixing this)
+	- bugfix: don't display caption if title is empty (thanks to bakman2 for fix)
 
 v0.5.1 (2011-01-18)
 
