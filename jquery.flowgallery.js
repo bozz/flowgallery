@@ -30,7 +30,7 @@ $.fn.flowGallery.defaults = {
   forceWidth: false,
   forceHeight: false,
   backgroundColor: 'black',
-  thumbWidth: 100,         // required, currently cannot be 'auto'
+  thumbWidth: 'auto',
   thumbHeight: 'auto',
   thumbTopOffset: 'auto',  // top offset in pixels or 'auto' for centering images within list height
   imagePadding: 4,         // border of active image
@@ -201,7 +201,7 @@ var _updateFlow = function(animate) {
       completeFn = afterFlowFn;
     } else {
       config = {
-        left: (isBefore ? (_centerX - _options.imagePadding - _imgData[_activeIndex].w*0.5 +  (i-_activeIndex)*_imgData[i].tw + (i-1-_activeIndex)*10) : (_centerX + _options.imagePadding + _imgData[_activeIndex].w*0.5 + (i-_activeIndex-1)*_imgData[i].tw + (i-_activeIndex)*10)) + 'px',
+        left: _calculateLeftPosition(i, isBefore),
         top: (_centerY - _imgData[i].th*0.5) + 'px',
         width: _imgData[i].tw+'px',
         height: _imgData[i].th+'px',
@@ -221,6 +221,28 @@ var _updateFlow = function(animate) {
   });
 };
 
+var _calculateLeftPosition = function(current, isBefore) {
+  var left = _centerX;
+  if (isBefore) {
+    left -= _imgData[_activeIndex].w*0.5;
+    left -= _options.imagePadding
+    left -= (_activeIndex - current) * 10;
+    left -= (_activeIndex - current) * 2 * _options.thumbPadding;
+    for (i = current; i < _activeIndex; i++) {
+      left -= _imgData[i].tw;
+    }
+    return left + 'px';
+  } else {
+    left += _imgData[_activeIndex].w*0.5;
+    left += _options.imagePadding
+    left += (current - _activeIndex) * 10;
+    left += (current - _activeIndex) * 2 * _options.thumbPadding;
+    for (i = _activeIndex + 1; i < current; i++) {
+      left += _imgData[i].tw;
+    }
+    return left + 'px';
+  }
+}
 
 var _showCaption = function(elem) {
   var img = $(elem).find('img').get(0);
@@ -246,11 +268,11 @@ var _showCaption = function(elem) {
 };
 
 
-// returns image dimensions (isLoaded default: false) 
+// returns image dimensions (isLoaded default: false)
 var _getImageDimensions = function(img, isLoaded) {
   isLoaded = isLoaded || false;
 
-  var imgWidth, imgHeight, thumbHeight = 0;
+  var imgWidth, imgHeight, thumbWidth, thumbHeight = 0;
   if(isLoaded) {
     var img_raw = img.get(0);
     if(typeof img_raw.naturalWidth !== 'undefined') {
@@ -262,22 +284,34 @@ var _getImageDimensions = function(img, isLoaded) {
       imgWidth = tmpImg.width;
       imgHeight = tmpImg.height;
     }
-    thumbHeight =  _options.thumbHeight === 'auto' ? Math.round(imgHeight*Number(_options.thumbWidth) / imgWidth) : _options.thumbHeight;
   } else {
-    thumbHeight = _options.thumbHeight === 'auto' ? 50 : _options.thumbHeight;
-    imgHeight = thumbHeight;
-    imgWidth = _options.thumbWidth;
+    imgWidth = img.attr('width');
+    imgHeight = img.attr('height');
+  }
+
+  if(_options.thumbWidth === 'auto' && _options.thumbHeight == 'auto') {
+    thumbWidth = 100;
+    thumbHeight = Math.round(imgHeight * 100 / imgWidth);
+  } else if (_options.thumbHeight === 'auto') {
+    thumbWidth = _options.thumbWidth;
+    thumbHeight = Math.round(imgHeight * Number(_options.thumbWidth) / imgWidth);
+  } else if (_options.thumbWidth === 'auto') {
+    thumbWidth = Math.round(imgWidth * Number(_options.thumbHeight) / imgHeight);
+    thumbHeight = _options.thumbHeight;
+  } else {
+    thumbWidth = _options.thumbWidth;
+    thumbHeight = _options.thumbHeight;
   }
 
   _updateListHeight(imgHeight);
 
-  return {h:imgHeight, w:imgWidth, th:thumbHeight, tw:_options.thumbWidth};
+  return {h:imgHeight, w:imgWidth, th:thumbHeight, tw:thumbWidth};
 };
 
 
 // checks if image has been fully loaded
 var _isImageSizeLoaded = function(img) {
-  if((_options.forceWidth && _options.forceHeight) || 
+  if((_options.forceWidth && _options.forceHeight) ||
      (img.width > _options.thumbWidth && img.height > 20)) {
     return true;
   }
