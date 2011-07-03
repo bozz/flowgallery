@@ -2,6 +2,10 @@
 =   FlowGallery jQuery Plugin   =
 =================================
 
+v0.6.4 (2011-07-03)
+
+  - enable 'auto' setting for thumbWidth config option (thanks to Andrew White for contribution!)
+
 v0.6.3 (2011-06-04)
 
 	- bugfix: calculate animations from width of parent container and not

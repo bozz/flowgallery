@@ -35,11 +35,11 @@ There are a number of optional configuration parameters that can be used to cust
 * animate - (boolean) should the image transitions be animated, default: @true@
 * enableKeyNavigation - (boolean) specifies if arrow keys (left and right) can be used for navigation, default: @true@
 * forwardOnActiveClick - (boolean) specifies if next image should be shown when clicking on active image, default: @false@
-* forceWidth - (false|integer) if specified, sets all images to this width, default: @false@
-* forceHeight - (false|integer) if specified, sets all images to this height, default: @false@
+* forceWidth - (false | integer) if specified, sets all images to this width, default: @false@
+* forceHeight - (false | integer) if specified, sets all images to this height, default: @false@
 * backgroundColor - (string) the background color of the border and caption, default: @"black"@
-* thumbWidth - (integer) the width of the image thumbnails, default: @100@
-* thumbHeight - ('auto'|integer) the height of image thumbnails or 'auto' calculate based on aspect ratio form thumbWidth, default: @"auto"@
+* thumbWidth - ('auto' | integer) the width of the image thumbnails or 'auto', calculated based on aspect ratio from thumbHeight (value set to 100px if both thumbWidth and thumbHeight are set to 'auto'), default: @"auto"@
+* thumbHeight - ('auto' | integer) the height of image thumbnails or 'auto', calculated based on aspect ratio from thumbWidth, default: @"auto"@
 * thumbTopOffset - ('auto'|integer) the top offset of all thumbnails or 'auto' to center based on initial active image, default: @"auto"@
 * imagePadding - (integer) the visible border around active images, default: @4@
 * thumbPadding - (integer) the visible border around thumbnails, default: @3@

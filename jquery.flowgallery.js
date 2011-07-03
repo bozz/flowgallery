@@ -1,7 +1,7 @@
 /*!
  * jQuery flowGallery plugin: Cover Flow Image Gallery
  * Examples and documentation at: http://github.com/bozz/flowGallery
- * version 0.6.3 (04-JUN-2011)
+ * version 0.6.4 (03-JUL-2011)
  * Author: Boris Searles (boris@lucidgardens.com)
  * Requires jQuery v1.3.2 or later
  * Dual licensed under the MIT and GPL licenses:
@@ -25,7 +25,7 @@ $.fn.flowGallery = function(options) {
 $.fn.flowGallery.defaults = {
   activeIndex: 0,          // index of image that is initially active
   animate: true,
-  enableKeyNavigation: true,   // enables forward/backward arrow keys for next/last navigation
+  enableKeyNavigation: true,   // enables forward/backward arrow keys for next/previous navigation
   forwardOnActiveClick: false, // should clicking on active image, show next image?
   forceWidth: false,
   forceHeight: false,
@@ -225,7 +225,7 @@ var _calculateLeftPosition = function(current, isBefore) {
   var left = _centerX;
   if (isBefore) {
     left -= _imgData[_activeIndex].w*0.5;
-    left -= _options.imagePadding
+    left -= _options.imagePadding;
     left -= (_activeIndex - current) * 10;
     left -= (_activeIndex - current) * 2 * _options.thumbPadding;
     for (i = current; i < _activeIndex; i++) {
@@ -234,7 +234,7 @@ var _calculateLeftPosition = function(current, isBefore) {
     return left + 'px';
   } else {
     left += _imgData[_activeIndex].w*0.5;
-    left += _options.imagePadding
+    left += _options.imagePadding;
     left += (current - _activeIndex) * 10;
     left += (current - _activeIndex) * 2 * _options.thumbPadding;
     for (i = _activeIndex + 1; i < current; i++) {
@@ -242,7 +242,7 @@ var _calculateLeftPosition = function(current, isBefore) {
     }
     return left + 'px';
   }
-}
+};
 
 var _showCaption = function(elem) {
   var img = $(elem).find('img').get(0);
@@ -406,7 +406,7 @@ var _flowInDir = function(dir) {
 
   _prepareFlow();
   _updateFlow(_options.animate);
-}
+};
 
 
 var _prepareFlow = function(activeElem) {
@@ -417,7 +417,7 @@ var _prepareFlow = function(activeElem) {
   // update width (changes if scrollbars disappear)
   _listWidth = _container.width();
   _centerX = _listWidth*0.5;
-}
+};
 
 
 // set list height to height of tallest image (needed for overflow:hidden)
