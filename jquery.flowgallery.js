@@ -25,6 +25,7 @@ $.fn.flowGallery = function(options) {
 $.fn.flowGallery.defaults = {
   activeIndex: 0,          // index of image that is initially active
   animate: true,
+  circular: false,
   enableKeyNavigation: true,   // enables forward/backward arrow keys for next/previous navigation
   forwardOnActiveClick: false, // should clicking on active image, show next image?
   forceWidth: false,
@@ -75,6 +76,13 @@ var _initList = function(elem) {
     position: 'relative',
     width: '100%'
   }).parent();
+
+  if (_options.circular) {
+    _children = $(_listElem).children();
+    _children.clone().prependTo(_listElem);
+    _children.clone().appendTo(_listElem);
+    _options.activeIndex = _options.activeIndex + _children.length;
+  }
 
   var wrapperElem = document.createElement('div');
   var captionElem = document.createElement('p');
@@ -375,6 +383,7 @@ var _addClickHandler = function(elem) {
   $(elem).click(function(){
     if(this !== _activeElem) {
       $("p.bf-caption").hide();
+      _currentIndex = _activeIndex;
       _activeIndex = 0;
       _activeElem = this;
       $(this).parent().children().each(function(i){
@@ -382,7 +391,7 @@ var _addClickHandler = function(elem) {
           _activeIndex = i;
         }
       });
-      _prepareFlow();
+      _prepareFlow(_currentIndex);
       _updateFlow(_options.animate);
     } else {
       if(_options.forwardOnActiveClick===true) {
@@ -395,6 +404,7 @@ var _addClickHandler = function(elem) {
 // trigger flow in direction from current active element;
 // positive value flows to the right, negative values to the left;
 var _flowInDir = function(dir) {
+  _currentIndex = _activeIndex;
   if(dir<0 && _activeIndex > 0) {
     _activeIndex += dir;
   } else if(dir>0 && _activeIndex < _imgData.length-1) {
@@ -404,12 +414,41 @@ var _flowInDir = function(dir) {
   }
   _activeElem = $(_listElem).children().get(_activeIndex);
 
-  _prepareFlow();
+  _prepareFlow(_currentIndex);
   _updateFlow(_options.animate);
 };
 
+var _offsetFlow = function(currentIndex, offset) {
+  var targetIndex = _activeIndex;
 
-var _prepareFlow = function(activeElem) {
+  _activeIndex = currentIndex + offset;
+  _activeElem = $(_listElem).children().get(_activeIndex);
+  $(_listElem).find('.active').removeClass('active');
+  $(_activeElem).addClass('active');
+  _updateFlow(false);
+  _activeIndex = targetIndex + offset;
+  _activeElem = $(_listElem).children().get(_activeIndex);
+};
+
+var _circularFlow = function(currentIndex) {
+  var _flowSize = $(_listElem).children().length / 3;
+
+  if (currentIndex > _activeIndex) {
+    if (_activeIndex < _flowSize) {
+      _offsetFlow(currentIndex, _flowSize);
+    }
+  } else {
+    if (_activeIndex > _flowSize * 2 - 1) {
+      _offsetFlow(currentIndex, -_flowSize);
+    }
+  }
+}
+
+var _prepareFlow = function(currentIndex) {
+  if (_options.circular) {
+    _circularFlow(currentIndex);
+  }
+
   $("p.bf-caption").hide();
   $(_listElem).find('.active').removeClass('active');
   $(_activeElem).addClass('active');
