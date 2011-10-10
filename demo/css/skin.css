@@ -54,6 +54,23 @@ a:hover {
 	background: url(../images/github_16.png) no-repeat left center;
 }
 
+
+
+#content {
+  background-color: #ddd;
+  border: 1px solid #666;
+  margin: 70px 250px 20px;
+  padding: 15px 0;
+}
+
+#content2 {
+  background-color: #ddd;
+  border: 1px solid #666;
+  margin: 70px auto 20px;
+  padding: 5px 0;
+  width: 170px;
+}
+
 /* image loading background image */
 
 #gallery li.loading {
