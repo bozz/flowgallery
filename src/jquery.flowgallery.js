@@ -45,7 +45,7 @@
         //$(document).unbind('keydown', _handleKeyEvents).keydown(_handleKeyEvents);
       }
 
-      self.updateFlow();
+      self.updateFlow(false);
     };
 
 
@@ -114,51 +114,57 @@
     };
 
 
+    // only applied after animation of 'active' element
+    afterFlowHandler = function(){
+      //_showCaption(_activeElem);
+
+      // adjust if width changed (i.e. if scrollbars get displayed)
+      if($container.width() !== listWidth) {
+        listWidth = $container.width();
+        self.centerX = listWidth*0.5;
+        self.updateFlow();
+        //self.showCaption(_activeElem);
+      }
+    },
+
+
     this.updateFlow = function(animate) {
-      var isBefore = true;
       //var leftOffset, topOffset, elWidth, elHeight, padding = 0;
-      var completeFn = null;
 
-      var afterFlowFn = function(){
-        //_showCaption(_activeElem);
+      var
+        config = {},
+        isBefore = true,   // in loop, are we before 'active' item
+        completeFn = null, // callback method to call after animation (for 'active' item)
+        currentItem = false,
+        $listItem = false,
+        itemsLength = flowItems.length;
 
-        // adjust if width changed (i.e. if scrollbars get displayed)
-        if($container.width() !== listWidth) {
-          listWidth = $container.width();
-          self.centerX = listWidth*0.5;
-          self.updateFlow();
-          //self.showCaption(_activeElem);
-        }
-      };
-
-      var config = {};
-      var $listItem = false;
-
-      for(var i=0; i<flowItems.length; i++) {
-        $listItem = flowItems[i].getListItem();
+      for(var i=0; i<itemsLength; i++) {
+        currentItem = flowItems[i];
+        $listItem = currentItem.getListItem();
 
         if( $listItem.hasClass('active') ) {
           config = {
-            left: (self.centerX - self.options.imagePadding - flowItems[i].w * 0.5) + 'px',
+            left: (self.centerX - self.options.imagePadding - currentItem.w * 0.5) + 'px',
             top: '0',
-            width: flowItems[i].w+'px',
-            height: flowItems[i].h+'px',
+            width: currentItem.w+'px',
+            height: currentItem.h+'px',
             padding: self.options.imagePadding+'px'
           };
           isBefore = false;
-          completeFn = afterFlowFn;
+          completeFn = afterFlowHandler;
         } else {
           config = {
             left: calculateLeftPosition(i, isBefore),
-            top: (self.centerY - flowItems[i].th*0.5) + 'px',
-            width: flowItems[i].tw+'px',
-            height: flowItems[i].th+'px',
+            top: (self.centerY - currentItem.th*0.5) + 'px',
+            width: currentItem.tw+'px',
+            height: currentItem.th+'px',
             padding: self.options.thumbPadding+'px'
           };
           completeFn = null;
         }
 
-        console.log("config: ", listHeight, config);
+        //console.log("config: ", listHeight, config);
 
         if(animate) {
           $listItem.stop().animate(config, { duration: self.options.duration, easing: self.options.easing, complete: completeFn });
@@ -204,7 +210,10 @@
 
 
     var calculateLeftPosition = function(current, isBefore) {
-      var left = self.centerX;
+      var
+        left = self.centerX,
+        i = 0;
+
       if (isBefore) {
         left -= flowItems[self.activeIndex].w*0.5;
         left -= self.options.imagePadding;
@@ -213,7 +222,6 @@
         for (i = current; i < self.activeIndex; i++) {
           left -= flowItems[i].tw;
         }
-        return left + 'px';
       } else {
         left += flowItems[self.activeIndex].w*0.5;
         left += self.options.imagePadding;
@@ -222,8 +230,8 @@
         for (i = self.activeIndex + 1; i < current; i++) {
           left += flowItems[i].tw;
         }
-        return left + 'px';
       }
+      return left + 'px';
     };
 
 
@@ -253,13 +261,10 @@
   /**********************************************************************************/
 
   var FlowItem = function(listItem, index, flowGallery) {
-    this.h = 0;   // full size image height
-    this.w = 0;   // full size image width
-    this.th = 0;  // thumb height
-    this.tw = 0;  // thumb width
+    this.h, this.th = flowGallery.options.loadingHeight;  // initialize heights
+    this.w, this.tw = flowGallery.options.loadingWidth;   // initialize widths
     this.active = false; // is active image?
     this.isLoaded = false; // is image fully loaded?
-
 
     var self = this,
       $listItem = $(listItem),
@@ -280,8 +285,7 @@
         $img.width(flowGallery.options.forceWidth);
       }
 
-      initImageDimensions();
-
+      // remove image and add 'loading' class
       $img.hide().parent().addClass(flowGallery.options.loadingClass).css({
         height: self.th,
         width: self.tw
@@ -311,52 +315,13 @@
     };
 
 
-    // determine image dimensions
-    var initImageDimensions = function() {
-      var isSizeReady2 = isSizeReady();
-      var options = flowGallery.options;
-
-      if(isSizeReady2) {
-        var img_raw = $img.get(0);
-        if(typeof img_raw.naturalWidth !== 'undefined') {
-          self.w  = options.forceWidth || img_raw.naturalWidth || img_raw.width;
-          self.h = options.forceHeight || img_raw.naturalHeight || img_raw.height;
-        } else {
-          var tmpImg = new Image();
-          tmpImg.src = $img.attr('src');
-          self.w = tmpImg.width;
-          self.h = tmpImg.height;
-        }
-      } else {
-        self.w = $img.attr('width');
-        self.h = $img.attr('height');
-      }
-
-      if(options.thumbWidth === 'auto' && options.thumbHeight == 'auto') {
-        self.tw = 100;
-        self.th = Math.round(self.h * 100 / self.w);
-      } else if (options.thumbHeight === 'auto') {
-        self.tw = flowGallery.options.thumbWidth;
-        self.th = Math.round(self.h * Number(options.thumbWidth) / self.w);
-      } else if (options.thumbWidth === 'auto') {
-        self.tw = Math.round(self.w * Number(options.thumbHeight) / self.h);
-        self.th = options.thumbHeight;
-      } else {
-        self.tw = options.thumbWidth;
-        self.th = options.thumbHeight;
-      }
-
-      flowGallery.updateListHeight(self.h);
-    };
-
-
-    // handle loading of incomplete images
+    // add handler to images to call after finished loading
     var addLoadHandler = function() {
       var raw_img = $img.get(0);
       if(raw_img.complete) {
         loadCompleteHandler.call(raw_img);
-      } else {
-        img.bind('load readystatechange', loadCompleteHandler)
+        } else {
+        $img.bind('load readystatechange', loadCompleteHandler)
         .bind('error', function () {
           $(this).css('visibility', 'visible').parent().removeClass(flowGallery.options.loadingClass);
         });
@@ -365,6 +330,7 @@
     };
 
 
+    // load handler for images
     var loadCompleteHandler = function(e){
       if (this.complete || (this.readyState === 'complete' && e.type ==='readystatechange')) {
         $img.css('visibility', 'visible').parent().removeClass(flowGallery.options.loadingClass);
@@ -378,17 +344,56 @@
           flowGallery.centerY = flowGallery.options.thumbTopOffset==='auto' ? self.h*0.5 : flowGallery.options.thumbTopOffset;
           if(e) { flowGallery.updateFlow(); }
         } else {
-          var animateParams = { height: self.th };
+          var animateParams = { height: self.th, width: self.tw };
           if(flowGallery.activeLoaded) {
             animateParams.top = (flowGallery.centerY - self.th*0.5) + 'px';
           }
           $listItem.animate(animateParams);
+
         }
 
-        console.log("isLoaded... ", self.h, self.w);
-
         $listItem.click( clickHandler );
+
+        // redraw in order to update thumbnail positions
+        flowGallery.updateFlow();
       }
+      // TODO: else case ?
+    };
+
+
+    // determine image dimensions
+    var initImageDimensions = function() {
+      var options = flowGallery.options;
+      var img_raw = $img.get(0);
+
+      // update full image dimensions
+      if(typeof img_raw.naturalWidth !== 'undefined') {
+        self.w  = options.forceWidth || img_raw.naturalWidth || img_raw.width;
+        self.h = options.forceHeight || img_raw.naturalHeight || img_raw.height;
+      } else {
+        var tmpImg = new Image();
+        tmpImg.src = $img.attr('src');
+        self.w = tmpImg.width;
+        self.h = tmpImg.height;
+      }
+
+      // update thumbnail dimensions
+      if(options.thumbWidth === 'auto' && options.thumbHeight == 'auto') {
+        self.tw = options.loadingWidth;
+        self.th = Math.round(self.h * options.loadingWidth / self.w);
+      } else if (options.thumbHeight === 'auto') {
+        self.tw = flowGallery.options.thumbWidth;
+        self.th = Math.round(self.h * Number(options.thumbWidth) / self.w);
+      } else if (options.thumbWidth === 'auto') {
+        self.tw = Math.round(self.w * Number(options.thumbHeight) / self.h);
+        self.th = options.thumbHeight;
+      } else {
+        self.tw = options.thumbWidth;
+        self.th = options.thumbHeight;
+      }
+
+      // make sure to update list height to fit largest loaded image
+      flowGallery.updateListHeight(self.h);
     };
 
 
@@ -403,6 +408,7 @@
 
 
     // check if image size can be determined yet
+    // TODO: deprecated --> remove!
     var isSizeReady = function() {
       if(self.isLoaded) { return true; }
 
@@ -452,6 +458,8 @@
     forceWidth: false,
     forceHeight: false,
     backgroundColor: 'black',
+    loadingWidth: 100,       // loading width to use if cannot be determined
+    loadingHeight: 60,       // loading height to use if cannot be determined
     thumbWidth: 'auto',
     thumbHeight: 'auto',
     thumbTopOffset: 'auto',  // top offset in pixels or 'auto' for centering images within list height
