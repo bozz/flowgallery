@@ -1,0 +1,68 @@
+
+var fs = require("fs");
+
+desc('Generate FlowGallery release files');
+task('default', function (params) {
+  console.log('Generating release version of plugin files...');
+
+  var header = getHeader();
+  var file = header + fs.readFileSync('../src/skeleton.js', 'utf8');
+
+  file = replaceMarkerWithFileContents(file, 'FlowGallery');
+  file = replaceMarkerWithFileContents(file, 'FlowItem');
+  file = replaceMarkerWithFileContents(file, 'plugin');
+
+  var pluginFile = '../release/jquery.flowgallery.js';
+  fs.writeFileSync(pluginFile, file);
+  console.log("Successfully generated: " + pluginFile);
+
+  file = header + uglifyFile(file);
+  var compressedFile = '../release/jquery.flowgallery.min.js';
+  fs.writeFileSync(compressedFile, file);
+  console.log("Successfully generated: " + compressedFile);
+});
+
+
+// load header file (under /src/header.js) and replace 'Version' and
+// 'Date' placeholders
+var getHeader = function() {
+  var headerData = fs.readFileSync('../src/header.js', 'utf8');
+  var versionData = fs.readFileSync('../version.txt', 'utf8');
+  headerData = headerData.replace('{{Version}}', trim(versionData));
+  headerData = headerData.replace('{{Date}}', '(' + getDate() + ')');
+  return headerData;
+}
+
+// search through 'file' for the 'marker' and if found
+// replace it by the contents of file with same name under /src
+var replaceMarkerWithFileContents = function(file, marker) {
+  markerFilePath = '../src/' + marker + '.js';
+  var markerFile = fs.readFileSync(markerFilePath, 'utf8');
+  return file.replace('// {{' + marker + '}}', markerFile);
+}
+
+// use uglify-js module to generate compressed code
+var uglifyFile = function(file) {
+  var jsp = require("uglify-js").parser;
+  var pro = require("uglify-js").uglify;
+
+  var ast = jsp.parse(file); // parse code and get the initial AST
+  ast = pro.ast_mangle(ast); // get a new AST with mangled names
+  ast = pro.ast_squeeze(ast); // get an AST with compression optimizations
+  var finalCode = pro.gen_code(ast); // compressed code here
+  return finalCode;
+}
+
+// util method for trimming whitespaces from string
+var trim = function(str) {
+  return str.replace(/^\s+|\s+$/g,"");
+}
+
+// return current date in format 04-JUN-2012
+var getDate = function() {
+  var d = new Date();
+  var months = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+  var day = d.getDate();
+  if(day < 10) { day = "0" + day; }
+  return day + "-" + months[d.getMonth()] + "-" + d.getFullYear();
+}
