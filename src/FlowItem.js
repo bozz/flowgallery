@@ -5,6 +5,8 @@ var FlowItem = function(listItem, index, flowGallery) {
   this.w, this.tw = flowGallery.options.loadingWidth;   // initialize widths
   this.active = false; // is active image?
   this.isLoaded = false; // is image fully loaded?
+  this.captionText = false; // text specified within 'title' attribute of img
+  this.oldActive = false; // is this image being animated away from active position?
 
   var self = this,
   $listItem = $(listItem),
@@ -21,6 +23,8 @@ var FlowItem = function(listItem, index, flowGallery) {
 
     // TODO: if no image found, remove <li> item from list
 
+    self.captionText = $img.attr('title');
+
     if(flowGallery.options.forceWidth) {
       $img.width(flowGallery.options.forceWidth);
     }
@@ -35,6 +39,7 @@ var FlowItem = function(listItem, index, flowGallery) {
 
     $listItem.css({
       backgroundColor: flowGallery.options.backgroundColor,
+      padding: flowGallery.options.thumbPadding,
       position: 'absolute',
       textAlign: 'center'
     });

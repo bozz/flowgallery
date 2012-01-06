@@ -16,7 +16,7 @@ var FlowGallery = function(element, options) {
   // public variable
   this.options = $.extend($.fn.flowgallery.defaults, options);
   this.activeIndex = 0;      // activeIndex
-  this.activeElem = false;   // reference to active <li> dom element
+  this.activeElem = false;   // reference to active FlowItem
   this.activeLoaded = false; // has active image been loaded?
   this.centerX = 0;          // horizontal center within list
   this.centerY = 0;          // vertical center within list
@@ -105,14 +105,23 @@ var FlowGallery = function(element, options) {
 
   // only applied after animation of 'active' element
   afterFlowHandler = function(){
-    //_showCaption(_activeElem);
+    showCaption();
 
     // adjust if width changed (i.e. if scrollbars get displayed)
     if($container.width() !== listWidth) {
       listWidth = $container.width();
       self.centerX = listWidth*0.5;
       self.updateFlow();
-      //self.showCaption(_activeElem);
+      showCaption();
+    }
+  },
+
+
+  // special afterFlow handler for previously active item
+  getOldActiveAfterFlowHandler = function(itemIndex) {
+    return function() {
+      var item = flowItems[itemIndex];
+      item.oldActive = false;
     }
   },
 
@@ -145,15 +154,19 @@ var FlowGallery = function(element, options) {
       } else {
         config = {
           left: calculateLeftPosition(i, isBefore),
-          top: (self.centerY - currentItem.th*0.5) + 'px',
-          width: currentItem.tw+'px',
-          height: currentItem.th+'px',
-          padding: self.options.thumbPadding+'px'
+          top: (self.centerY - currentItem.th*0.5) + 'px'
         };
-        completeFn = null;
-      }
 
-      //console.log("config: ", listHeight, config);
+        completeFn = null;
+
+        // only animate width/height for old active item
+        if(currentItem.oldActive) {
+          config.width = currentItem.tw+'px';
+          config.height = currentItem.th+'px';
+          config.padding = self.options.thumbPadding+'px';
+          completeFn = getOldActiveAfterFlowHandler(i);
+        }
+      }
 
       if(animate) {
         $listItem.stop().animate(config, { duration: self.options.duration, easing: self.options.easing, complete: completeFn });
@@ -168,22 +181,22 @@ var FlowGallery = function(element, options) {
   // trigger flow in direction from current active element;
   // positive value flows to the right, negative values to the left;
   this.flowInDir = function(dir) {
-    _currentIndex = self.activeIndex;
+    self.activeElem.oldActive = true; // mark old active item
     if(dir<0 && self.activeIndex > 0) {
+      flowItems[self.activeIndex].oldActive = true;
       self.activeIndex += dir;
     } else if(dir>0 && self.activeIndex < flowItems.length-1) {
       self.activeIndex += dir;
     } else {
       return false;
     }
-    self.activeElem = flowItems[self.activeIndex]; //$list.children().get(self.activeIndex);
-
-    prepareFlow(_currentIndex);
+    self.activeElem = flowItems[self.activeIndex];
+    prepareFlow();
     self.updateFlow(self.options.animate);
   };
 
 
-  var prepareFlow = function(currentIndex) {
+  var prepareFlow = function() {
     //if (_options.circular) {
     //  _circularFlow(currentIndex);
     //}
@@ -229,7 +242,31 @@ var FlowGallery = function(element, options) {
     listWidth = $container.width();
     centerX = listWidth*0.5;
     self.updateFlow();
-    //showCaption(activeElem);
+    showCaption();
+  };
+
+
+  // show caption under active image
+  var showCaption = function() {
+    var activeItem = self.activeElem;
+    if(!activeItem.isLoaded) { return false; }
+
+    var captionText = activeItem.captionText;
+    if(captionText.length > 0){
+      $caption.text(captionText);
+
+      $caption.css({
+        left: self.centerX - self.options.imagePadding - activeItem.w * 0.5,
+        top: activeItem.h + self.options.imagePadding*2,
+        width: activeItem.w - 20
+      });
+
+      // set height of caption as bottom margin for list
+      var fullHeight = activeItem.h + $caption.height() + 40;
+      $list.height(fullHeight);
+
+      $caption.fadeIn('fast');
+    }
   };
 
 
