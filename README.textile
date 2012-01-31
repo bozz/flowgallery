@@ -1,6 +1,8 @@
 
 h1. FlowGallery
 
+NOTE: master is currently under heavy development und could be unstable, the last stable release can be found under tags => v0.6.4.
+
 jQuery plugin for image galleries with a cover flow effect.
 
 Demo: "http://lucidgardens.com/flowgallery":http://lucidgardens.com/lab/flowgallery
