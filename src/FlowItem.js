@@ -1,8 +1,9 @@
 
 
-var FlowItem = function(listItem, index, flowGallery) {
+var FlowItem = function(listItem, index, flowGallery, loadCompleteCallback) {
   this.h, this.th = flowGallery.options.loadingHeight;  // initialize heights
   this.w, this.tw = flowGallery.options.loadingWidth;   // initialize widths
+  this.index = index; // index within the list
   this.active = false; // is active image?
   this.isLoaded = false; // is image fully loaded?
   this.captionText = false; // text specified within 'title' attribute of img
@@ -17,6 +18,11 @@ var FlowItem = function(listItem, index, flowGallery) {
     return $listItem;
   };
 
+  // custom 'bind' for hooking up custom events
+  // to underlying $listItem
+  this.bind = function(eventType, callback) {
+    $listItem.bind(eventType, callback);
+  };
 
   var init = function() {
     $img = $listItem.find('img');
@@ -84,23 +90,11 @@ var FlowItem = function(listItem, index, flowGallery) {
       self.isLoaded = true;
       initImageDimensions();
 
-      if(index===flowGallery.options.activeIndex) {
-        flowGallery.activeLoaded = true;
-        flowGallery.centerY = flowGallery.options.thumbTopOffset==='auto' ? self.h*0.5 : flowGallery.options.thumbTopOffset;
-        if(e) { flowGallery.updateFlow(); }
-      } else {
-        var animateParams = { height: self.th, width: self.tw };
-        if(flowGallery.activeLoaded) {
-          animateParams.top = (flowGallery.centerY - self.th*0.5) + 'px';
-        }
-        $listItem.animate(animateParams);
-
-      }
-
       $listItem.click( clickHandler );
 
-      // redraw in order to update thumbnail positions
-      flowGallery.updateFlow();
+      if(loadCompleteHandler) {
+        loadCompleteCallback(self);
+      }
     }
     // TODO: else case ?
   };
@@ -133,12 +127,11 @@ var FlowItem = function(listItem, index, flowGallery) {
       self.tw = Math.round(self.w * Number(options.thumbHeight) / self.h);
       self.th = options.thumbHeight;
     } else {
+
       self.tw = options.thumbWidth;
       self.th = options.thumbHeight;
+      console.log("h/w::: ", self.th, self.tw);
     }
-
-    // make sure to update list height to fit largest loaded image
-    flowGallery.updateListHeight(self.h);
   };
 
 

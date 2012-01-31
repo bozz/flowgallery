@@ -3,38 +3,54 @@
 var FlowGallery = function(element, options) {
 
   // private variables
-  var
-  $list = $(element),      // reference to list as jquery object
-  $container = $list.parent(), // parent element of list
-  listWidth = 0,          // list width (default: screen width)
-  listHeight = 0,         // list height (height of highest image)
-  $caption = false,       // caption element
-  elCounter = 0,          // number of list items
-  flowItems = [],         // array of FlowItems
-  self = this;
+  var $list = $(element);     // reference to list as jquery object
+  var $container = $list.parent(); // parent element of list
+  var listWidth = 0;          // list width (default: screen width)
+  var listHeight = 0;         // list height (height of highest image)
+  var $caption = false;       // caption element
+  var elCounter = 0;          // number of list items
+  var flowItems = [];         // array of FlowItems
+  var activeLoaded = false;   // has active image been loaded?
+  var centerX = 0;            // horizontal center within list
+  var centerY = 0;            // vertical center within list
+  var self = this;
 
-  // public variable
-  this.options = $.extend($.fn.flowgallery.defaults, options);
+  // public variables
+
+  // clone defaults and then merge custom options
+  this.options = $.extend({}, $.fn.flowgallery.defaults, options);
+  this.length = $list.children().length;
+
   this.activeIndex = 0;      // activeIndex
   this.activeElem = false;   // reference to active FlowItem
-  this.activeLoaded = false; // has active image been loaded?
-  this.centerX = 0;          // horizontal center within list
-  this.centerY = 0;          // vertical center within list
 
-  console.log("creating FlowGallery: ", this.options.name);
+  this.next = function() {
+    self.flowInDir(1);
+  };
+
+  this.prev = function() {
+    self.flowInDir(-1);
+  };
+
+  this.goto = function(index) {
+    self.flowInDir(index - self.activeIndex);
+  };
+
 
   // initialize gallery
   var init = function() {
     initDom();
     initFlowItems();
 
+    $list.css('visibility', 'visible');
+
     $(window).resize(windowResizeHandler);
 
     if(self.options.enableKeyNavigation===true) {
-      //$(document).unbind('keydown', _handleKeyEvents).keydown(_handleKeyEvents);
+      $(document).unbind('keydown', handleKeyEvents).keydown(handleKeyEvents);
     }
 
-    self.updateFlow(false);
+    updateFlow(false);
   };
 
 
@@ -84,11 +100,11 @@ var FlowGallery = function(element, options) {
   var initFlowItems = function() {
     // loop through list items to extract image data and determine list height
     $list.children().each(function(index) {
-      flowItems.push( new FlowItem(this, index, self) );
+      flowItems.push( new FlowItem(this, index, self, itemLoadedHandler) );
     });
 
     listWidth = $container.width();
-    self.centerX = listWidth*0.5;
+    centerX = listWidth*0.5;
 
     var activeImageHeight = false;
     if(self.activeElem.isLoaded) {
@@ -96,46 +112,62 @@ var FlowGallery = function(element, options) {
     }
 
     if(activeImageHeight) {
-      self.centerY = self.options.thumbTopOffset==='auto' ? activeImageHeight*0.5 : self.options.thumbTopOffset;
+      centerY = self.options.thumbTopOffset==='auto' ? activeImageHeight*0.5 : self.options.thumbTopOffset;
     } else {
-      self.centerY = self.options.thumbTopOffset==='auto' ? listHeight*0.5 : self.options.thumbTopOffset + self.options.thumbHeight*0.5;
+      centerY = self.options.thumbTopOffset==='auto' ? listHeight*0.5 : self.options.thumbTopOffset + self.options.thumbHeight*0.5;
     }
   };
 
 
+  var itemLoadedHandler = function(item) {
+    if(item.index===self.options.activeIndex) {
+      activeLoaded = true;
+      centerY = self.options.thumbTopOffset==='auto' ? item.h*0.5 : self.options.thumbTopOffset;
+    } else {
+      var animateParams = { height: item.th, width: item.tw };
+      if(activeLoaded) {
+        animateParams.top = (centerY - item.th*0.5) + 'px';
+      }
+      item.getListItem().animate(animateParams);
+    }
+
+    updateListHeight(item.h);
+
+    // redraw in order to update thumbnail positions
+    updateFlow();
+  }
+
+
   // only applied after animation of 'active' element
-  afterFlowHandler = function(){
+  var afterFlowHandler = function(){
     showCaption();
 
     // adjust if width changed (i.e. if scrollbars get displayed)
     if($container.width() !== listWidth) {
       listWidth = $container.width();
-      self.centerX = listWidth*0.5;
-      self.updateFlow();
+      centerX = listWidth*0.5;
+      updateFlow();
       showCaption();
     }
-  },
+  };
 
 
   // special afterFlow handler for previously active item
-  getOldActiveAfterFlowHandler = function(itemIndex) {
+  var getOldActiveAfterFlowHandler = function(itemIndex) {
     return function() {
       var item = flowItems[itemIndex];
       item.oldActive = false;
     }
-  },
+  };
 
 
-  this.updateFlow = function(animate) {
-    //var leftOffset, topOffset, elWidth, elHeight, padding = 0;
-
-    var
-    config = {},
-    isBefore = true,   // in loop, are we before 'active' item
-    completeFn = null, // callback method to call after animation (for 'active' item)
-    currentItem = false,
-    $listItem = false,
-    itemsLength = flowItems.length;
+  var updateFlow = function(animate) {
+    var config = {};
+    var isBefore = true;   // in loop, are we before 'active' item
+    var completeFn = null; // callback method to call after animation (for 'active' item)
+    var currentItem = false;
+    var $listItem = false;
+    var itemsLength = flowItems.length;
 
     for(var i=0; i<itemsLength; i++) {
       currentItem = flowItems[i];
@@ -143,7 +175,7 @@ var FlowGallery = function(element, options) {
 
       if( $listItem.hasClass('active') ) {
         config = {
-          left: (self.centerX - self.options.imagePadding - currentItem.w * 0.5) + 'px',
+          left: (centerX - self.options.imagePadding - currentItem.w * 0.5) + 'px',
           top: '0',
           width: currentItem.w+'px',
           height: currentItem.h+'px',
@@ -154,7 +186,7 @@ var FlowGallery = function(element, options) {
       } else {
         config = {
           left: calculateLeftPosition(i, isBefore),
-          top: (self.centerY - currentItem.th*0.5) + 'px'
+          top: (centerY - currentItem.th*0.5) + 'px'
         };
 
         completeFn = null;
@@ -181,6 +213,11 @@ var FlowGallery = function(element, options) {
   // trigger flow in direction from current active element;
   // positive value flows to the right, negative values to the left;
   this.flowInDir = function(dir) {
+    var newIndex = self.activeIndex + dir;
+    if(newIndex > flowItems.length-1 || newIndex < 0) {
+      return false;
+    }
+
     self.activeElem.oldActive = true; // mark old active item
     if(dir<0 && self.activeIndex > 0) {
       flowItems[self.activeIndex].oldActive = true;
@@ -192,7 +229,7 @@ var FlowGallery = function(element, options) {
     }
     self.activeElem = flowItems[self.activeIndex];
     prepareFlow();
-    self.updateFlow(self.options.animate);
+    updateFlow(self.options.animate);
   };
 
 
@@ -207,14 +244,13 @@ var FlowGallery = function(element, options) {
 
     // update width (changes if scrollbars disappear)
     listWidth = $container.width();
-    self.centerX = listWidth*0.5;
+    centerX = listWidth*0.5;
   };
 
 
   var calculateLeftPosition = function(current, isBefore) {
-    var
-    left = self.centerX,
-    i = 0;
+    var left = centerX;
+    var i = 0;
 
     if (isBefore) {
       left -= flowItems[self.activeIndex].w*0.5;
@@ -241,7 +277,7 @@ var FlowGallery = function(element, options) {
   var windowResizeHandler = function() {
     listWidth = $container.width();
     centerX = listWidth*0.5;
-    self.updateFlow();
+    updateFlow();
     showCaption();
   };
 
@@ -252,11 +288,11 @@ var FlowGallery = function(element, options) {
     if(!activeItem.isLoaded) { return false; }
 
     var captionText = activeItem.captionText;
-    if(captionText.length > 0){
+    if(captionText && captionText.length > 0){
       $caption.text(captionText);
 
       $caption.css({
-        left: self.centerX - self.options.imagePadding - activeItem.w * 0.5,
+        left: centerX - self.options.imagePadding - activeItem.w * 0.5,
         top: activeItem.h + self.options.imagePadding*2,
         width: activeItem.w - 20
       });
@@ -271,7 +307,7 @@ var FlowGallery = function(element, options) {
 
 
   // set list height to height of tallest image (needed for overflow:hidden)
-  this.updateListHeight = function(height) {
+  var updateListHeight = function(height) {
     if(height > listHeight) {
       listHeight = height;
       listHeight += self.options.imagePadding*2;
@@ -279,6 +315,15 @@ var FlowGallery = function(element, options) {
     }
   };
 
+
+  // handle key events
+  var handleKeyEvents = function(e) {
+    if(e.keyCode===37) { // right arrow key
+      self.flowInDir(-1);
+    } else if(e.keyCode===39) { // left arrow key
+      self.flowInDir(1);
+    }
+  };
 
   init();
 };

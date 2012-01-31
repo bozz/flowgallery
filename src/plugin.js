@@ -32,8 +32,8 @@ $.fn.flowgallery.defaults = {
   thumbWidth: 'auto',
   thumbHeight: 'auto',
   thumbTopOffset: 'auto',  // top offset in pixels or 'auto' for centering images within list height
-  imagePadding: 4,         // border of active image
-  thumbPadding: 3,         // border of thumbnails
+  imagePadding: 0,         // border of active image
+  thumbPadding: 0,         // border of thumbnails
   loadingClass: "loading", // css class applied to <li> elements of loading images
   easing: 'linear',
   duration: 900            // animation duration (higher value = slower speed)
