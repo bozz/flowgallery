@@ -1,5 +1,7 @@
 (function($) {
 
+// {{utils}}
+
 // {{FlowGallery}}
 
 // {{FlowItem}}

@@ -1,4 +1,14 @@
 
+var FlowGalleryApi = function (element, options) {
+  $.extend(this, filterPrototype({
+    src: new FlowGallery(element, options),
+    getters: ['options', 'length'],
+    //setters: ['color'],
+    methods: ['next', 'prev', 'goto'],
+    version: getVersion()
+  }));
+};
+
 
 var FlowGallery = function(element, options) {
 

@@ -8,6 +8,7 @@ task('default', function (params) {
   var header = getHeader();
   var file = header + fs.readFileSync('../src/skeleton.js', 'utf8');
 
+  file = replaceMarkerWithFileContents(file, 'utils');
   file = replaceMarkerWithFileContents(file, 'FlowGallery');
   file = replaceMarkerWithFileContents(file, 'FlowItem');
   file = replaceMarkerWithFileContents(file, 'plugin');

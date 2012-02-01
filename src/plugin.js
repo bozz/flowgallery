@@ -9,7 +9,7 @@ $.fn.flowgallery = function(options) {
     if (element.data('flowgallery')) { return; }
 
     // pass options to plugin constructor
-    var flowgallery = new FlowGallery(this, options);
+    var flowgallery = new FlowGalleryApi(this, options);
 
     // Store plugin object in this element's data
     element.data('flowgallery', flowgallery);
