@@ -54,6 +54,9 @@ $(function() {
     $('#gallery').flowgallery({
       easing: 'easeOutCubic'
     });
+    //$('#gallery2').flowgallery({
+      //easing: 'easeOutCubic'
+    //});
   };
 
   var initDemoEqualSize = function() {

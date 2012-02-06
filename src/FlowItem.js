@@ -1,56 +1,75 @@
 
 
-var FlowItem = function(listItem, index, flowGallery, loadCompleteCallback) {
-  this.h, this.th = flowGallery.options.loadingHeight;  // initialize heights
-  this.w, this.tw = flowGallery.options.loadingWidth;   // initialize widths
-  this.index = index; // index within the list
-  this.active = false; // is active image?
-  this.isLoaded = false; // is image fully loaded?
-  this.captionText = false; // text specified within 'title' attribute of img
-  this.oldActive = false; // is this image being animated away from active position?
+var FlowItem = function(elem, index, flowGallery, loadCompleteCallback) {
 
-  var self = this,
-  $listItem = $(listItem),
-  $img = false;
+  this.listItem = elem;
+  this.$listItem = $(elem);
+
+  this.index = index;
+  this.flowGallery = flowGallery;
+  this.config = flowGallery.config;
+  this.loadCompleteCallback = loadCompleteCallback;
+
+  this.h = 0;               // image height
+  this.th= 0;              // thumb height
+  this.w= 0;               // image width
+  this.tw= 0;              // thumb width
+  this.active= false;      // is active image?
+  this.isLoaded= false;    // is image fully loaded?
+  this.captionText= false; // text specified within 'title' attribute of img
+  this.oldActive= false;   // is this image being animated away from active position?
+  this.$img= false;
+};
 
 
-  this.getListItem = function() {
-    return $listItem;
-  };
+FlowItem.prototype = {
+  //h: 0,               // image height
+  //th: 0,              // thumb height
+  //w: 0,               // image width
+  //tw: 0,              // thumb width
+  //active: false,      // is active image?
+  //isLoaded: false,    // is image fully loaded?
+  //captionText: false, // text specified within 'title' attribute of img
+  //oldActive: false,   // is this image being animated away from active position?
+  //$img: false,
 
-  // custom 'bind' for hooking up custom events
-  // to underlying $listItem
-  this.bind = function(eventType, callback) {
-    $listItem.bind(eventType, callback);
-  };
 
-  var init = function() {
-    $img = $listItem.find('img');
+  getListItem: function() {
+    return this.$listItem;
+  },
+
+
+  init: function() {
+    this.h = this.config.loadingHeight;
+    this.th = this.config.loadingHeight;
+    this.w = this.config.loadingWidth;
+    this.tw = this.config.loadingWidth;
+    this.$img = this.$listItem.find('img');
 
     // TODO: if no image found, remove <li> item from list
 
-    self.captionText = $img.attr('title');
+    this.captionText = this.$img.attr('title');
 
-    if(flowGallery.options.forceWidth) {
-      $img.width(flowGallery.options.forceWidth);
+    if(this.config.forceWidth) {
+      this.$img.width(this.config.forceWidth);
     }
 
     // remove image and add 'loading' class
-    $img.hide().parent().addClass(flowGallery.options.loadingClass).css({
-      height: self.th,
-      width: self.tw
+    this.$img.hide().parent().addClass(this.config.loadingClass).css({
+      height: this.th,
+      width: this.tw
     });
 
-    addLoadHandler();
+    this.addLoadHandler();
 
-    $listItem.css({
-      backgroundColor: flowGallery.options.backgroundColor,
-      padding: flowGallery.options.thumbPadding,
+    this.$listItem.css({
+      backgroundColor: this.config.backgroundColor,
+      padding: this.config.thumbPadding,
       position: 'absolute',
       textAlign: 'center'
     });
 
-    $img.css({
+    this.$img.css({
       cursor: 'pointer',
       height: '100%',
       imageRendering: 'optimizeQuality', // firefox property
@@ -58,101 +77,106 @@ var FlowItem = function(listItem, index, flowGallery, loadCompleteCallback) {
       width: '100%'
     });
 
-    if(!flowGallery.activeElem && flowGallery.options.activeIndex===index) {
-      $listItem.addClass('active');
-      flowGallery.activeElem = self;
-      flowGallery.activeIndex = index;
+    if(!this.flowGallery.activeItem && this.config.activeIndex===this.index) {
+      this.$listItem.addClass('active');
+      this.flowGallery.activeItem = this;
+      this.flowGallery.activeIndex = this.index;
     }
-  };
+  },
 
 
   // add handler to images to call after finished loading
-  var addLoadHandler = function() {
-    var raw_img = $img.get(0);
-    if(raw_img.complete) {
-      loadCompleteHandler.call(raw_img);
+  addLoadHandler: function() {
+    var img = this.$img.get(0);
+    if(img.complete) {
+      this.initListItem();
     } else {
-      $img.bind('load readystatechange', loadCompleteHandler)
+      var self = this;
+      this.$img.bind('load readystatechange', $.proxy(this.imageLoadHandler, this))
       .bind('error', function () {
-        $(this).css('visibility', 'visible').parent().removeClass(flowGallery.options.loadingClass);
+        self.$img.css('visibility', 'visible').parent().removeClass(self.config.loadingClass);
       });
     }
 
-  };
+  },
+
+
+  // event handler for image loading
+  imageLoadHandler: function(e) {
+    var img = this.$img.get(0);
+    if (img.complete || (img.readyState === 'complete' && e.type === 'readystatechange')) {
+      this.initListItem();
+    }
+  },
 
 
   // load handler for images
-  var loadCompleteHandler = function(e){
-    if (this.complete || (this.readyState === 'complete' && e.type ==='readystatechange')) {
-      $img.css('visibility', 'visible').parent().removeClass(flowGallery.options.loadingClass);
-      $img.fadeIn();
+  initListItem: function(){
+    this.$img.css('visibility', 'visible').parent().removeClass(this.config.loadingClass);
+    this.$img.fadeIn();
 
-      self.isLoaded = true;
-      initImageDimensions();
+    this.isLoaded = true;
+    this.initImageDimensions();
 
-      $listItem.click( clickHandler );
+    this.$listItem.click( $.proxy(this.clickHandler, this) );
 
-      if(loadCompleteHandler) {
-        loadCompleteCallback(self);
-      }
+    if(typeof this.loadCompleteCallback === 'function') {
+      this.loadCompleteCallback(this);
     }
-    // TODO: else case ?
-  };
+  },
 
 
   // determine image dimensions
-  var initImageDimensions = function() {
-    var options = flowGallery.options;
-    var img_raw = $img.get(0);
+  initImageDimensions: function() {
+    var img_raw = this.$img.get(0);
 
     // update full image dimensions
     if(typeof img_raw.naturalWidth !== 'undefined') {
-      self.w  = options.forceWidth || img_raw.naturalWidth || img_raw.width;
-      self.h = options.forceHeight || img_raw.naturalHeight || img_raw.height;
+      this.w  = this.config.forceWidth || img_raw.naturalWidth || img_raw.width;
+      this.h = this.config.forceHeight || img_raw.naturalHeight || img_raw.height;
     } else {
       var tmpImg = new Image();
-      tmpImg.src = $img.attr('src');
-      self.w = tmpImg.width;
-      self.h = tmpImg.height;
+      tmpImg.src = this.$img.attr('src');
+      this.w = tmpImg.width;
+      this.h = tmpImg.height;
     }
 
     // update thumbnail dimensions
-    if(options.thumbWidth === 'auto' && options.thumbHeight == 'auto') {
-      self.tw = options.loadingWidth;
-      self.th = Math.round(self.h * options.loadingWidth / self.w);
-    } else if (options.thumbHeight === 'auto') {
-      self.tw = flowGallery.options.thumbWidth;
-      self.th = Math.round(self.h * Number(options.thumbWidth) / self.w);
-    } else if (options.thumbWidth === 'auto') {
-      self.tw = Math.round(self.w * Number(options.thumbHeight) / self.h);
-      self.th = options.thumbHeight;
+    if(this.config.thumbWidth === 'auto' && this.config.thumbHeight === 'auto') {
+      this.tw = this.config.loadingWidth;
+      this.th = Math.round(this.h * this.config.loadingWidth / this.w);
+    } else if (this.config.thumbHeight === 'auto') {
+      this.tw = this.config.thumbWidth;
+      this.th = Math.round(this.h * Number(this.config.thumbWidth) / this.w);
+    } else if (this.config.thumbWidth === 'auto') {
+      this.tw = Math.round(this.w * Number(this.config.thumbHeight) / this.h);
+      this.th = this.config.thumbHeight;
     } else {
-
-      self.tw = options.thumbWidth;
-      self.th = options.thumbHeight;
-      console.log("h/w::: ", self.th, self.tw);
+      this.tw = this.config.thumbWidth;
+      this.th = this.config.thumbHeight;
     }
-  };
+  },
 
 
-  var clickHandler = function() {
-    if(self !== flowGallery.activeElem) {
-      var oldIndex = flowGallery.activeIndex;
-      flowGallery.flowInDir(index-oldIndex);
-    } else if(flowGallery.options.forwardOnActiveClick===true) {
-      flowGallery.flowInDir(1);
+  // click handler on listItem <li>
+  clickHandler: function() {
+    if(this.listItem !== this.flowGallery.activeItem) {
+      var oldIndex = this.flowGallery.activeIndex;
+      this.flowGallery.flowInDir(this.index-oldIndex);
+    } else if(this.config.forwardOnActiveClick===true) {
+      this.flowGallery.flowInDir(1);
     }
-  };
+  },
 
 
   // check if image size can be determined yet
   // TODO: deprecated --> remove!
-  var isSizeReady = function() {
-    if(self.isLoaded) { return true; }
+  isSizeReady: function() {
+    if(this.isLoaded) { return true; }
 
     var img = $img.get(0);
-    if((flowGallery.options.forceWidth && flowGallery.options.forceHeight) ||
-       (img.width > flowGallery.options.thumbWidth && img.height > 20)) {
+    if((flowGallery.config.forceWidth && flowGallery.config.forceHeight) ||
+       (img.width > flowGallery.config.thumbWidth && img.height > 20)) {
       return true;
     }
 
@@ -162,7 +186,6 @@ var FlowItem = function(listItem, index, flowGallery, loadCompleteCallback) {
     }
 
     return true;
-  };
+  }
 
-  init();
 };

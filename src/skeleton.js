@@ -1,4 +1,4 @@
-(function($) {
+;(function( $, window, document, undefined ){
 
 // {{utils}}
 
@@ -8,4 +8,4 @@
 
 // {{plugin}}
 
-})(jQuery);
+})( jQuery, window , document );

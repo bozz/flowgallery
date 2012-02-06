@@ -5,16 +5,7 @@
  */
 var getVersion = function () {
   return '1.0.0pre';
-}
-
-
-/**
- * helper function to capitalize first letter of string
- * @return {string}
- */
-var capitaliseFirstLetter = function (string) {
-  return string.charAt(0).toUpperCase() + string.slice(1);
-}
+};
 
 
 /**
@@ -28,46 +19,88 @@ var capitaliseFirstLetter = function (string) {
  * @param {array}  config.methods
  * @return {array}
  */
-var filterPrototype = function (config) {
-  var proto = {};
-  var i;
+var ApiGenerator = (function() {
 
-  if (config.src) {
-    var src = config.src;
-    // special accessor to get full source object
-    proto._getSource = function () {
-      return config.src;
-    };
+  var src, i, length;
 
-    if (config.getters) {
-      var createGetter = function (g) {
-        proto['get' + capitaliseFirstLetter(g)] = function () {
-          return src[g];
-        };
+  /**
+   * helper function to capitalize first letter of string
+   * @return {string}
+   */
+  function capitalize(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+  }
+
+  // create closure for correct scope
+  function createGetter(g, scope) {
+    if(src[g]) {
+      scope['get' + capitalize(g)] = function () {
+        return src[g];
       };
-      for (i = 0; i < config.getters.length; i++) {
-        createGetter(config.getters[i]);
+    }
+  }
+
+
+  // create closure for correct scope
+  function createSetter(s, scope) {
+    if(src[s]) {
+      scope['set' + capitalize(s)] = function (val) {
+        src[s] = val;
+      };
+    }
+  }
+
+
+  function initApi(scope, config) {
+    // special accessor to get full source object
+    scope._getSource = function () {
+      return src;
+    };
+    if (config.getters) {
+      length = config.getters.length;
+      for (i = 0; i < length; i++) {
+        createGetter(config.getters[i], scope);
       }
     }
     if (config.setters) {
-      var createSetter = function (s) {
-        proto['set' + capitaliseFirstLetter(s)] = function (val) {
-          src[s] = val;
-        };
-      }
-      for (i = 0; i < config.setters.length; i++) {
-        createSetter(config.setters[i]);
+      length = config.setters.length;
+      for (i = 0; i < length; i++) {
+        createSetter(config.setters[i], scope);
       }
     }
     if (config.methods) {
-      for (i = 0; i < config.methods.length; i++) {
+      length = config.methods.length;
+      for (i = 0; i < length; i++) {
         method = config.methods[i];
-        proto[method] = $.proxy(config.src[method], config.src);
+        if(src[method]) {
+          scope[method] = $.proxy(src[method], src);
+        }
       }
     }
     if (config.version) {
-      proto._version = config.version;
+      scope._version = config.version;
     }
   }
-  return proto;
-};
+
+  return {
+    init: function(SrcConstructor, config) {
+      return function api() {
+        if(typeof SrcConstructor === 'function') {
+          // workaround to pass 'arguments' to Constructor
+          // see: http://stackoverflow.com/a/3362623
+          var args = Array.prototype.slice.call(arguments);
+          var inst, ret;
+          var Temp = function(){};
+          Temp.prototype = SrcConstructor.prototype;
+          inst = new Temp();
+          ret = SrcConstructor.apply(inst, args);
+          src = typeof ret === 'object' ? ret : inst;
+
+          initApi(this, config);
+          return this;
+        }
+      };
+    }
+  };
+
+})();
