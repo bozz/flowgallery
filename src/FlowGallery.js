@@ -29,6 +29,7 @@ var FlowGallery = function(elem, options) {
   this.length= 0;             // number of images in gallery
   this.activeIndex= 0;        // activeIndex
   this.activeItem= false;     // reference to active FlowItem
+  this.enabled= true;         // is gallery currently enabled
 
   this.init();
 };
@@ -93,7 +94,7 @@ FlowGallery.prototype = {
 
     if(this.config.enableKeyNavigation===true) {
       var proxyKeyHandler = $.proxy(this.handleKeyEvents, this);
-      $(document).unbind('keydown', proxyKeyHandler).keydown(proxyKeyHandler);
+      $(document).keydown(proxyKeyHandler);
     }
 
     this.updateFlow(false);
@@ -114,6 +115,15 @@ FlowGallery.prototype = {
     return this;
   },
 
+  disable: function() {
+    this.enabled = false;
+    return this;
+  },
+
+  enable: function() {
+    this.enabled = true;
+    return this;
+  },
 
   // initialize dom setup and styling
   initDom: function() {
@@ -227,6 +237,8 @@ FlowGallery.prototype = {
 
 
   updateFlow: function(animate) {
+    if(!this.enabled) { return false; }
+
     var config = {};
     var isBefore = true;   // in loop, are we before 'active' item
     var completeFn = null; // callback method to call after animation (for 'active' item)
@@ -279,6 +291,8 @@ FlowGallery.prototype = {
   // trigger flow in direction from current active element;
   // positive value flows to the right, negative values to the left;
   flowInDir: function(dir) {
+    if(!this.enabled) { return false; }
+
     var newIndex = this.activeIndex + dir;
     if(newIndex > this.flowItems.length-1 || newIndex < 0) {
       return false;
@@ -383,6 +397,8 @@ FlowGallery.prototype = {
 
   // handle key events
   handleKeyEvents: function(e) {
+    if(!this.enabled) { return false; }
+
     if(e.keyCode===37) { // right arrow key
       this.flowInDir(-1);
     } else if(e.keyCode===39) { // left arrow key
@@ -394,6 +410,6 @@ FlowGallery.prototype = {
 
 var FlowGalleryApi = ApiGenerator.init(FlowGallery, {
   getters: ['options', 'length'],
-  methods: ['next', 'prev', 'goto'],
+  methods: ['next', 'prev', 'goto', 'enable', 'disable'],
   version: getVersion()
 });
