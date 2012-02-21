@@ -1,7 +1,7 @@
 /*!
  * jQuery flowgallery plugin: Cover Flow Image Gallery
  * Examples and documentation at: http://github.com/bozz/flowgallery
- * Version: 1.0.0pre (19-FEB-2012)
+ * Version: 0.7.0pre (21-FEB-2012)
  * Author: Boris Searles (boris@lucidgardens.com)
  * Requires jQuery v1.3.2 or later
  * Dual licensed under the MIT and GPL licenses:
@@ -265,7 +265,7 @@ FlowGallery.prototype = {
   // initialize caption - a single instance is shared by all images
   initCaption: function() {
     var captionElem = document.createElement('p');
-    this.$caption = $(captionElem).addClass('bf-caption').css({
+    this.$caption = $(captionElem).addClass('fg-caption').css({
       backgroundColor: this.config.backgroundColor,
       display: 'none',
       marginTop: '0',
@@ -279,7 +279,7 @@ FlowGallery.prototype = {
   initWrapper: function() {
     var wrapperElem = document.createElement('div');
     $(wrapperElem)
-    .addClass('bf-wrapper').css({
+    .addClass('fg-wrapper').css({
       position: 'relative'
     })
     .append( this.$list.get(0) )
