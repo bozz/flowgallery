@@ -145,7 +145,7 @@ FlowGallery.prototype = {
   // initialize caption - a single instance is shared by all images
   initCaption: function() {
     var captionElem = document.createElement('p');
-    this.$caption = $(captionElem).addClass('bf-caption').css({
+    this.$caption = $(captionElem).addClass('fg-caption').css({
       backgroundColor: this.config.backgroundColor,
       display: 'none',
       marginTop: '0',
@@ -159,7 +159,7 @@ FlowGallery.prototype = {
   initWrapper: function() {
     var wrapperElem = document.createElement('div');
     $(wrapperElem)
-    .addClass('bf-wrapper').css({
+    .addClass('fg-wrapper').css({
       position: 'relative'
     })
     .append( this.$list.get(0) )
