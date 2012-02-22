@@ -1,7 +1,7 @@
 /*!
  * jQuery flowgallery plugin: Cover Flow Image Gallery
  * Examples and documentation at: http://github.com/bozz/flowgallery
- * Version: 0.7.0pre (21-FEB-2012)
+ * Version: 0.7.0pre (22-FEB-2012)
  * Author: Boris Searles (boris@lucidgardens.com)
  * Requires jQuery v1.3.2 or later
  * Dual licensed under the MIT and GPL licenses:
@@ -220,18 +220,18 @@ FlowGallery.prototype = {
     this.updateFlow(false);
   },
 
-  next: function() {
-    this.flowInDir(1);
+  next: function(animate) {
+    this.flowInDir(1, animate);
     return this;
   },
 
-  prev: function() {
-    this.flowInDir(-1);
+  prev: function(animate) {
+    this.flowInDir(-1, animate);
     return this;
   },
 
-  goto: function(index) {
-    this.flowInDir(index - this.activeIndex);
+  goto: function(index, animate) {
+    this.flowInDir(index - this.activeIndex, animate);
     return this;
   },
 
@@ -242,6 +242,13 @@ FlowGallery.prototype = {
 
   enable: function() {
     this.enabled = true;
+
+    // if resize event was fired while disabled, then adjust after
+    // being enabled again
+    if(this.resizeWhileDisabled) {
+      $.proxy(this.windowResizeHandler, this)();
+      this.resizeWhileDisabled = false;
+    }
     return this;
   },
 
@@ -410,8 +417,10 @@ FlowGallery.prototype = {
 
   // trigger flow in direction from current active element;
   // positive value flows to the right, negative values to the left;
-  flowInDir: function(dir) {
+  flowInDir: function(dir, animate) {
     if(!this.enabled) { return false; }
+
+    animate = animate!==undefined ? animate : this.config.animate;
 
     var newIndex = this.activeIndex + dir;
     if(newIndex > this.flowItems.length-1 || newIndex < 0) {
@@ -429,7 +438,7 @@ FlowGallery.prototype = {
     }
     this.activeItem = this.flowItems[this.activeIndex];
     this.prepareFlow();
-    this.updateFlow(this.config.animate);
+    this.updateFlow(animate);
   },
 
 
@@ -475,6 +484,7 @@ FlowGallery.prototype = {
 
   // window resize handler - update gallery when window is resized
   windowResizeHandler: function() {
+    if(!this.enabled) { this.resizeWhileDisabled = true; return false; }
     this.listWidth = this.$container.width();
     this.centerX = this.listWidth*0.5;
     this.updateFlow();
@@ -517,8 +527,6 @@ FlowGallery.prototype = {
 
   // handle key events
   handleKeyEvents: function(e) {
-    if(!this.enabled) { return false; }
-
     if(e.keyCode===37) { // right arrow key
       this.flowInDir(-1);
     } else if(e.keyCode===39) { // left arrow key
