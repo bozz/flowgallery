@@ -1,16 +1,16 @@
 
 
-var FlowGallery = function(elem, options) {
+var FlowGallery = function(elem, config) {
 
   this.list = elem;                 // reference to list as jquery object
   this.$list = $(elem);
 
-  this.options = options;
+  this.config = config;             // config options set by user
 
   // This next line takes advantage of HTML5 data attributes
   // to support customization of the plugin on a per-element
   // basis. For example,
-  // <div class=item' data-plugin-options='{"message":"Goodbye World!"}'></div>
+  // <ul id='gallery' data-plugin-options='{"activeIndex": 3}'>...</ul>
   this.metadata = this.$list.data( 'plugin-options' );
 
   // private variables
@@ -25,7 +25,7 @@ var FlowGallery = function(elem, options) {
   this.$caption= false;       // caption element
 
   // public variables
-  this.config= {};            // merged options
+  this.options= {};           // merged config options with defaults
   this.length= 0;             // number of images in gallery
   this.activeIndex= 0;        // activeIndex
   this.activeItem= false;     // reference to active FlowItem
@@ -81,7 +81,7 @@ FlowGallery.prototype = {
 
   // initialize gallery
   init: function() {
-    this.config = $.extend({}, FlowGallery.defaults, this.options, this.metadata);
+    this.options = $.extend({}, FlowGallery.defaults, this.config, this.metadata);
     this.$container = this.$list.parent();
     this.length = this.$list.children().length;
 
@@ -92,7 +92,7 @@ FlowGallery.prototype = {
 
     $(window).resize( $.proxy(this.windowResizeHandler, this) );
 
-    if(this.config.enableKeyNavigation===true) {
+    if(this.options.enableKeyNavigation===true) {
       var proxyKeyHandler = $.proxy(this.handleKeyEvents, this);
       $(document).keydown(proxyKeyHandler);
     }
@@ -113,6 +113,10 @@ FlowGallery.prototype = {
   goto: function(index, animate) {
     this.flowInDir(index - this.activeIndex, animate);
     return this;
+  },
+
+  isEnabled: function() {
+    return this.enabled===true;
   },
 
   disable: function() {
@@ -153,10 +157,10 @@ FlowGallery.prototype = {
   initCaption: function() {
     var captionElem = document.createElement('p');
     this.$caption = $(captionElem).addClass('fg-caption').css({
-      backgroundColor: this.config.backgroundColor,
+      backgroundColor: this.options.backgroundColor,
       display: 'none',
       marginTop: '0',
-      padding: '8px ' + (this.config.imagePadding+10) + 'px 15px',
+      padding: '8px ' + (this.options.imagePadding+10) + 'px 15px',
       position: 'absolute'
     });
   },
@@ -193,17 +197,17 @@ FlowGallery.prototype = {
     }
 
     if(activeImageHeight) {
-      centerY = this.config.thumbTopOffset==='auto' ? activeImageHeight*0.5 : this.config.thumbTopOffset;
+      centerY = this.options.thumbTopOffset==='auto' ? activeImageHeight*0.5 : this.options.thumbTopOffset;
     } else {
-      centerY = this.config.thumbTopOffset==='auto' ? this.listHeight*0.5 : this.config.thumbTopOffset + this.config.thumbHeight*0.5;
+      centerY = this.options.thumbTopOffset==='auto' ? this.listHeight*0.5 : this.options.thumbTopOffset + this.options.thumbHeight*0.5;
     }
   },
 
 
   itemLoadedHandler: function(item) {
-    if(item.index===this.config.activeIndex) {
+    if(item.index===this.options.activeIndex) {
       this.activeLoaded = true;
-      this.centerY = this.config.thumbTopOffset==='auto' ? item.h*0.5 : this.config.thumbTopOffset;
+      this.centerY = this.options.thumbTopOffset==='auto' ? item.h*0.5 : this.options.thumbTopOffset;
     } else {
       var animateParams = { height: item.th, width: item.tw };
       if(this.activeLoaded) {
@@ -244,7 +248,7 @@ FlowGallery.prototype = {
 
 
   updateFlow: function(animate) {
-    if(!this.enabled) { return false; }
+    if(!this.isEnabled()) { return false; }
 
     var config = {};
     var isBefore = true;   // in loop, are we before 'active' item
@@ -260,11 +264,11 @@ FlowGallery.prototype = {
 
       if( this.$listItem.hasClass('active') ) {
         config = {
-          left: (this.centerX - this.config.imagePadding - currentItem.w * 0.5) + 'px',
+          left: (this.centerX - this.options.imagePadding - currentItem.w * 0.5) + 'px',
           top: '0',
           width: currentItem.w+'px',
           height: currentItem.h+'px',
-          padding: this.config.imagePadding+'px'
+          padding: this.options.imagePadding+'px'
         };
         isBefore = false;
         completeFn = $.proxy(this.afterFlowHandler, this);
@@ -280,13 +284,13 @@ FlowGallery.prototype = {
         if(currentItem.oldActive) {
           config.width = currentItem.tw+'px';
           config.height = currentItem.th+'px';
-          config.padding = this.config.thumbPadding+'px';
+          config.padding = this.options.thumbPadding+'px';
           completeFn = this.getOldActiveAfterFlowHandler(i);
         }
       }
 
       if(animate) {
-        this.$listItem.stop().animate(config, { duration: this.config.duration, easing: this.config.easing, complete: completeFn });
+        this.$listItem.stop().animate(config, { duration: this.options.duration, easing: this.options.easing, complete: completeFn });
       } else {
         this.$listItem.css(config);
         if(completeFn) { completeFn(); }
@@ -298,9 +302,9 @@ FlowGallery.prototype = {
   // trigger flow in direction from current active element;
   // positive value flows to the right, negative values to the left;
   flowInDir: function(dir, animate) {
-    if(!this.enabled) { return false; }
+    if(!this.isEnabled()) { return false; }
 
-    animate = animate!==undefined ? animate : this.config.animate;
+    animate = animate!==undefined ? animate : this.options.animate;
 
     var newIndex = this.activeIndex + dir;
     if(newIndex > this.flowItems.length-1 || newIndex < 0) {
@@ -343,17 +347,17 @@ FlowGallery.prototype = {
 
     if (isBefore) {
       left -= this.flowItems[this.activeIndex].w*0.5;
-      left -= this.config.imagePadding;
+      left -= this.options.imagePadding;
       left -= (this.activeIndex - current) * 10;
-      left -= (this.activeIndex - current) * 2 * this.config.thumbPadding;
+      left -= (this.activeIndex - current) * 2 * this.options.thumbPadding;
       for (i = current; i < this.activeIndex; i++) {
         left -= this.flowItems[i].tw;
       }
     } else {
       left += this.flowItems[this.activeIndex].w*0.5;
-      left += this.config.imagePadding;
+      left += this.options.imagePadding;
       left += (current - this.activeIndex) * 10;
-      left += (current - this.activeIndex) * 2 * this.config.thumbPadding;
+      left += (current - this.activeIndex) * 2 * this.options.thumbPadding;
       for (i = this.activeIndex + 1; i < current; i++) {
         left += this.flowItems[i].tw;
       }
@@ -364,7 +368,7 @@ FlowGallery.prototype = {
 
   // window resize handler - update gallery when window is resized
   windowResizeHandler: function() {
-    if(!this.enabled) { this.resizeWhileDisabled = true; return false; }
+    if(!this.isEnabled()) { this.resizeWhileDisabled = true; return false; }
     this.listWidth = this.$container.width();
     this.centerX = this.listWidth*0.5;
     this.updateFlow();
@@ -381,8 +385,8 @@ FlowGallery.prototype = {
       this.$caption.text(captionText);
 
       this.$caption.css({
-        left: this.centerX - this.config.imagePadding - this.activeItem.w * 0.5,
-        top: this.activeItem.h + this.config.imagePadding*2,
+        left: this.centerX - this.options.imagePadding - this.activeItem.w * 0.5,
+        top: this.activeItem.h + this.options.imagePadding*2,
         width: this.activeItem.w - 20
       });
 
@@ -399,7 +403,7 @@ FlowGallery.prototype = {
   updateListHeight: function(height) {
     if(height > this.listHeight) {
       this.listHeight = height;
-      this.listHeight += this.config.imagePadding*2;
+      this.listHeight += this.options.imagePadding*2;
       this.$list.height(this.listHeight);
     }
   },
@@ -418,6 +422,6 @@ FlowGallery.prototype = {
 
 var FlowGalleryApi = ApiGenerator.init(FlowGallery, {
   getters: ['options', 'length'],
-  methods: ['next', 'prev', 'goto', 'enable', 'disable'],
+  methods: ['next', 'prev', 'goto', 'isEnabled', 'enable', 'disable'],
   version: getVersion()
 });

@@ -1,7 +1,7 @@
 /*!
  * jQuery flowgallery plugin: Cover Flow Image Gallery
  * Examples and documentation at: http://github.com/bozz/flowgallery
- * Version: 0.7.0pre (22-FEB-2012)
+ * Version: 0.7.0pre (27-FEB-2012)
  * Author: Boris Searles (boris@lucidgardens.com)
  * Requires jQuery v1.3.2 or later
  * Dual licensed under the MIT and GPL licenses:
@@ -120,17 +120,17 @@ var ApiGenerator = (function() {
 
 
 
-var FlowGallery = function(elem, options) {
+var FlowGallery = function(elem, config) {
 
   this.list = elem;                 // reference to list as jquery object
   this.$list = $(elem);
 
-  this.options = options;
+  this.config = config;             // config options set by user
 
   // This next line takes advantage of HTML5 data attributes
   // to support customization of the plugin on a per-element
   // basis. For example,
-  // <div class=item' data-plugin-options='{"message":"Goodbye World!"}'></div>
+  // <ul id='gallery' data-plugin-options='{"activeIndex": 3}'>...</ul>
   this.metadata = this.$list.data( 'plugin-options' );
 
   // private variables
@@ -145,7 +145,7 @@ var FlowGallery = function(elem, options) {
   this.$caption= false;       // caption element
 
   // public variables
-  this.config= {};            // merged options
+  this.options= {};           // merged config options with defaults
   this.length= 0;             // number of images in gallery
   this.activeIndex= 0;        // activeIndex
   this.activeItem= false;     // reference to active FlowItem
@@ -201,7 +201,7 @@ FlowGallery.prototype = {
 
   // initialize gallery
   init: function() {
-    this.config = $.extend({}, FlowGallery.defaults, this.options, this.metadata);
+    this.options = $.extend({}, FlowGallery.defaults, this.config, this.metadata);
     this.$container = this.$list.parent();
     this.length = this.$list.children().length;
 
@@ -212,7 +212,7 @@ FlowGallery.prototype = {
 
     $(window).resize( $.proxy(this.windowResizeHandler, this) );
 
-    if(this.config.enableKeyNavigation===true) {
+    if(this.options.enableKeyNavigation===true) {
       var proxyKeyHandler = $.proxy(this.handleKeyEvents, this);
       $(document).keydown(proxyKeyHandler);
     }
@@ -233,6 +233,10 @@ FlowGallery.prototype = {
   goto: function(index, animate) {
     this.flowInDir(index - this.activeIndex, animate);
     return this;
+  },
+
+  isEnabled: function() {
+    return this.enabled===true;
   },
 
   disable: function() {
@@ -273,10 +277,10 @@ FlowGallery.prototype = {
   initCaption: function() {
     var captionElem = document.createElement('p');
     this.$caption = $(captionElem).addClass('fg-caption').css({
-      backgroundColor: this.config.backgroundColor,
+      backgroundColor: this.options.backgroundColor,
       display: 'none',
       marginTop: '0',
-      padding: '8px ' + (this.config.imagePadding+10) + 'px 15px',
+      padding: '8px ' + (this.options.imagePadding+10) + 'px 15px',
       position: 'absolute'
     });
   },
@@ -313,17 +317,17 @@ FlowGallery.prototype = {
     }
 
     if(activeImageHeight) {
-      centerY = this.config.thumbTopOffset==='auto' ? activeImageHeight*0.5 : this.config.thumbTopOffset;
+      centerY = this.options.thumbTopOffset==='auto' ? activeImageHeight*0.5 : this.options.thumbTopOffset;
     } else {
-      centerY = this.config.thumbTopOffset==='auto' ? this.listHeight*0.5 : this.config.thumbTopOffset + this.config.thumbHeight*0.5;
+      centerY = this.options.thumbTopOffset==='auto' ? this.listHeight*0.5 : this.options.thumbTopOffset + this.options.thumbHeight*0.5;
     }
   },
 
 
   itemLoadedHandler: function(item) {
-    if(item.index===this.config.activeIndex) {
+    if(item.index===this.options.activeIndex) {
       this.activeLoaded = true;
-      this.centerY = this.config.thumbTopOffset==='auto' ? item.h*0.5 : this.config.thumbTopOffset;
+      this.centerY = this.options.thumbTopOffset==='auto' ? item.h*0.5 : this.options.thumbTopOffset;
     } else {
       var animateParams = { height: item.th, width: item.tw };
       if(this.activeLoaded) {
@@ -364,7 +368,7 @@ FlowGallery.prototype = {
 
 
   updateFlow: function(animate) {
-    if(!this.enabled) { return false; }
+    if(!this.isEnabled()) { return false; }
 
     var config = {};
     var isBefore = true;   // in loop, are we before 'active' item
@@ -380,11 +384,11 @@ FlowGallery.prototype = {
 
       if( this.$listItem.hasClass('active') ) {
         config = {
-          left: (this.centerX - this.config.imagePadding - currentItem.w * 0.5) + 'px',
+          left: (this.centerX - this.options.imagePadding - currentItem.w * 0.5) + 'px',
           top: '0',
           width: currentItem.w+'px',
           height: currentItem.h+'px',
-          padding: this.config.imagePadding+'px'
+          padding: this.options.imagePadding+'px'
         };
         isBefore = false;
         completeFn = $.proxy(this.afterFlowHandler, this);
@@ -400,13 +404,13 @@ FlowGallery.prototype = {
         if(currentItem.oldActive) {
           config.width = currentItem.tw+'px';
           config.height = currentItem.th+'px';
-          config.padding = this.config.thumbPadding+'px';
+          config.padding = this.options.thumbPadding+'px';
           completeFn = this.getOldActiveAfterFlowHandler(i);
         }
       }
 
       if(animate) {
-        this.$listItem.stop().animate(config, { duration: this.config.duration, easing: this.config.easing, complete: completeFn });
+        this.$listItem.stop().animate(config, { duration: this.options.duration, easing: this.options.easing, complete: completeFn });
       } else {
         this.$listItem.css(config);
         if(completeFn) { completeFn(); }
@@ -418,9 +422,9 @@ FlowGallery.prototype = {
   // trigger flow in direction from current active element;
   // positive value flows to the right, negative values to the left;
   flowInDir: function(dir, animate) {
-    if(!this.enabled) { return false; }
+    if(!this.isEnabled()) { return false; }
 
-    animate = animate!==undefined ? animate : this.config.animate;
+    animate = animate!==undefined ? animate : this.options.animate;
 
     var newIndex = this.activeIndex + dir;
     if(newIndex > this.flowItems.length-1 || newIndex < 0) {
@@ -463,17 +467,17 @@ FlowGallery.prototype = {
 
     if (isBefore) {
       left -= this.flowItems[this.activeIndex].w*0.5;
-      left -= this.config.imagePadding;
+      left -= this.options.imagePadding;
       left -= (this.activeIndex - current) * 10;
-      left -= (this.activeIndex - current) * 2 * this.config.thumbPadding;
+      left -= (this.activeIndex - current) * 2 * this.options.thumbPadding;
       for (i = current; i < this.activeIndex; i++) {
         left -= this.flowItems[i].tw;
       }
     } else {
       left += this.flowItems[this.activeIndex].w*0.5;
-      left += this.config.imagePadding;
+      left += this.options.imagePadding;
       left += (current - this.activeIndex) * 10;
-      left += (current - this.activeIndex) * 2 * this.config.thumbPadding;
+      left += (current - this.activeIndex) * 2 * this.options.thumbPadding;
       for (i = this.activeIndex + 1; i < current; i++) {
         left += this.flowItems[i].tw;
       }
@@ -484,7 +488,7 @@ FlowGallery.prototype = {
 
   // window resize handler - update gallery when window is resized
   windowResizeHandler: function() {
-    if(!this.enabled) { this.resizeWhileDisabled = true; return false; }
+    if(!this.isEnabled()) { this.resizeWhileDisabled = true; return false; }
     this.listWidth = this.$container.width();
     this.centerX = this.listWidth*0.5;
     this.updateFlow();
@@ -501,8 +505,8 @@ FlowGallery.prototype = {
       this.$caption.text(captionText);
 
       this.$caption.css({
-        left: this.centerX - this.config.imagePadding - this.activeItem.w * 0.5,
-        top: this.activeItem.h + this.config.imagePadding*2,
+        left: this.centerX - this.options.imagePadding - this.activeItem.w * 0.5,
+        top: this.activeItem.h + this.options.imagePadding*2,
         width: this.activeItem.w - 20
       });
 
@@ -519,7 +523,7 @@ FlowGallery.prototype = {
   updateListHeight: function(height) {
     if(height > this.listHeight) {
       this.listHeight = height;
-      this.listHeight += this.config.imagePadding*2;
+      this.listHeight += this.options.imagePadding*2;
       this.$list.height(this.listHeight);
     }
   },
@@ -538,7 +542,7 @@ FlowGallery.prototype = {
 
 var FlowGalleryApi = ApiGenerator.init(FlowGallery, {
   getters: ['options', 'length'],
-  methods: ['next', 'prev', 'goto', 'enable', 'disable'],
+  methods: ['next', 'prev', 'goto', 'isEnabled', 'enable', 'disable'],
   version: getVersion()
 });
 
@@ -552,7 +556,7 @@ var FlowItem = function(elem, index, flowGallery, loadCompleteCallback) {
 
   this.index = index;
   this.flowGallery = flowGallery;
-  this.config = flowGallery.config;
+  this.options = flowGallery.options;
   this.loadCompleteCallback = loadCompleteCallback;
 
   this.h = 0;               // image height
@@ -585,22 +589,22 @@ FlowItem.prototype = {
 
 
   init: function() {
-    this.h = this.config.loadingHeight;
-    this.th = this.config.loadingHeight;
-    this.w = this.config.loadingWidth;
-    this.tw = this.config.loadingWidth;
+    this.h = this.options.loadingHeight;
+    this.th = this.options.loadingHeight;
+    this.w = this.options.loadingWidth;
+    this.tw = this.options.loadingWidth;
     this.$img = this.$listItem.find('img');
 
     // TODO: if no image found, remove <li> item from list
 
     this.captionText = this.$img.attr('title');
 
-    if(this.config.forceWidth) {
-      this.$img.width(this.config.forceWidth);
+    if(this.options.forceWidth) {
+      this.$img.width(this.options.forceWidth);
     }
 
     // remove image and add 'loading' class
-    this.$img.hide().parent().addClass(this.config.loadingClass).css({
+    this.$img.hide().parent().addClass(this.options.loadingClass).css({
       height: this.th,
       width: this.tw
     });
@@ -608,8 +612,8 @@ FlowItem.prototype = {
     this.addLoadHandler();
 
     this.$listItem.css({
-      backgroundColor: this.config.backgroundColor,
-      padding: this.config.thumbPadding,
+      backgroundColor: this.options.backgroundColor,
+      padding: this.options.thumbPadding,
       position: 'absolute',
       textAlign: 'center'
     });
@@ -622,7 +626,7 @@ FlowItem.prototype = {
       width: '100%'
     });
 
-    if(!this.flowGallery.activeItem && this.config.activeIndex===this.index) {
+    if(!this.flowGallery.activeItem && this.options.activeIndex===this.index) {
       this.$listItem.addClass('active');
       this.flowGallery.activeItem = this;
       this.flowGallery.activeIndex = this.index;
@@ -639,7 +643,7 @@ FlowItem.prototype = {
       var self = this;
       this.$img.bind('load readystatechange', $.proxy(this.imageLoadHandler, this))
       .bind('error', function () {
-        self.$img.css('visibility', 'visible').parent().removeClass(self.config.loadingClass);
+        self.$img.css('visibility', 'visible').parent().removeClass(self.options.loadingClass);
       });
     }
 
@@ -657,7 +661,7 @@ FlowItem.prototype = {
 
   // load handler for images
   initListItem: function(){
-    this.$img.css('visibility', 'visible').parent().removeClass(this.config.loadingClass);
+    this.$img.css('visibility', 'visible').parent().removeClass(this.options.loadingClass);
     this.$img.fadeIn();
 
     this.isLoaded = true;
@@ -677,8 +681,8 @@ FlowItem.prototype = {
 
     // update full image dimensions
     if(typeof img_raw.naturalWidth !== 'undefined') {
-      this.w  = this.config.forceWidth || img_raw.naturalWidth || img_raw.width;
-      this.h = this.config.forceHeight || img_raw.naturalHeight || img_raw.height;
+      this.w  = this.options.forceWidth || img_raw.naturalWidth || img_raw.width;
+      this.h = this.options.forceHeight || img_raw.naturalHeight || img_raw.height;
     } else {
       var tmpImg = new Image();
       tmpImg.src = this.$img.attr('src');
@@ -687,18 +691,18 @@ FlowItem.prototype = {
     }
 
     // update thumbnail dimensions
-    if(this.config.thumbWidth === 'auto' && this.config.thumbHeight === 'auto') {
-      this.tw = this.config.loadingWidth;
-      this.th = Math.round(this.h * this.config.loadingWidth / this.w);
-    } else if (this.config.thumbHeight === 'auto') {
-      this.tw = this.config.thumbWidth;
-      this.th = Math.round(this.h * Number(this.config.thumbWidth) / this.w);
-    } else if (this.config.thumbWidth === 'auto') {
-      this.tw = Math.round(this.w * Number(this.config.thumbHeight) / this.h);
-      this.th = this.config.thumbHeight;
+    if(this.options.thumbWidth === 'auto' && this.options.thumbHeight === 'auto') {
+      this.tw = this.options.loadingWidth;
+      this.th = Math.round(this.h * this.options.loadingWidth / this.w);
+    } else if (this.options.thumbHeight === 'auto') {
+      this.tw = this.options.thumbWidth;
+      this.th = Math.round(this.h * Number(this.options.thumbWidth) / this.w);
+    } else if (this.options.thumbWidth === 'auto') {
+      this.tw = Math.round(this.w * Number(this.options.thumbHeight) / this.h);
+      this.th = this.options.thumbHeight;
     } else {
-      this.tw = this.config.thumbWidth;
-      this.th = this.config.thumbHeight;
+      this.tw = this.options.thumbWidth;
+      this.th = this.options.thumbHeight;
     }
   },
 
@@ -708,30 +712,10 @@ FlowItem.prototype = {
     if(this.listItem !== this.flowGallery.activeItem) {
       var oldIndex = this.flowGallery.activeIndex;
       this.flowGallery.flowInDir(this.index-oldIndex);
-    } else if(this.config.forwardOnActiveClick===true) {
+    } else if(this.options.forwardOnActiveClick===true) {
       this.flowGallery.flowInDir(1);
     }
   },
-
-
-  // check if image size can be determined yet
-  // TODO: deprecated --> remove!
-  isSizeReady: function() {
-    if(this.isLoaded) { return true; }
-
-    var img = $img.get(0);
-    if((flowGallery.config.forceWidth && flowGallery.config.forceHeight) ||
-       (img.width > flowGallery.config.thumbWidth && img.height > 20)) {
-      return true;
-    }
-
-    if(!img.complete) { return false; }
-    if(typeof img.naturalWidth !== "undefined" && img.naturalWidth===0) {
-      return false;
-    }
-
-    return true;
-  }
 
 };
 
