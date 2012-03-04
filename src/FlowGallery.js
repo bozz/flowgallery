@@ -46,7 +46,7 @@ FlowGallery.defaults = {
   enableKeyNavigation: true,   // enables forward/backward arrow keys for next/previous navigation
   forceHeight: false,
   forceWidth: false,
-  forwardOnActiveClick: false, // should clicking on active image, show next image?
+  forwardOnActiveClick: true, // should clicking on active image, show next image?
   imagePadding: 0,         // border of active image
   loadingClass: "loading", // css class applied to <li> elements of loading images
   loadingHeight: 60,       // loading height to use if cannot be determined
@@ -191,23 +191,23 @@ FlowGallery.prototype = {
     this.listWidth = this.$container.width();
     this.centerX = this.listWidth*0.5;
 
-    var activeImageHeight = false;
-    if(this.activeItem.isLoaded) {
-      activeImageHeight = this.activeItem.h;
-    }
+    //var activeImageHeight = false;
+    //if(this.activeItem.isLoaded) {
+      //activeImageHeight = this.activeItem.h;
+    //}
 
-    if(activeImageHeight) {
-      centerY = this.options.thumbTopOffset==='auto' ? activeImageHeight*0.5 : this.options.thumbTopOffset;
-    } else {
-      centerY = this.options.thumbTopOffset==='auto' ? this.listHeight*0.5 : this.options.thumbTopOffset + this.options.thumbHeight*0.5;
-    }
+    //if(activeImageHeight) {
+      //centerY = this.options.thumbTopOffset==='auto' ? activeImageHeight*0.5 : this.options.thumbTopOffset;
+    //} else {
+      //centerY = this.options.thumbTopOffset==='auto' ? this.listHeight*0.5 : this.options.thumbTopOffset + this.options.thumbHeight*0.5;
+    //}
   },
 
 
   itemLoadedHandler: function(item) {
     if(item.index===this.options.activeIndex) {
       this.activeLoaded = true;
-      this.centerY = this.options.thumbTopOffset==='auto' ? item.h*0.5 : this.options.thumbTopOffset;
+      //this.centerY = this.options.thumbTopOffset==='auto' ? item.h*0.5 : this.options.thumbTopOffset;
     } else {
       var animateParams = { height: item.th, width: item.tw };
       if(this.activeLoaded) {
@@ -219,7 +219,7 @@ FlowGallery.prototype = {
     this.updateListHeight(item.h);
 
     // redraw in order to update thumbnail positions
-    this.updateFlow();
+    this.updateFlow(false);
   },
 
 
@@ -257,6 +257,10 @@ FlowGallery.prototype = {
     var $listItem = false;
     var itemsLength = this.flowItems.length;
 
+
+    // update centerY based on active image
+    this.centerY = this.options.thumbTopOffset==='auto' ? this.activeItem.h*0.5 : this.options.thumbTopOffset;
+
     var i;
     for(i=0; i<itemsLength; i++) {
       currentItem = this.flowItems[i];
@@ -272,6 +276,22 @@ FlowGallery.prototype = {
         };
         isBefore = false;
         completeFn = $.proxy(this.afterFlowHandler, this);
+
+        // animate list size if active image height has changed
+        if(this.listHeight !== currentItem.h) {
+          this.listHeight = currentItem.h;
+          this.listHeight += this.options.imagePadding*2;
+          if(animate) {
+            this.$list.stop().animate({
+              height: this.listHeight
+            }, {
+              duration: this.options.duration,
+              easing: this.options.easing
+            });
+          } else {
+            this.$list.height(this.listHeight);
+          }
+        }
       } else {
         config = {
           left: this.calculateLeftPosition(i, isBefore),
@@ -291,6 +311,9 @@ FlowGallery.prototype = {
 
       if(animate) {
         this.$listItem.stop().animate(config, { duration: this.options.duration, easing: this.options.easing, complete: completeFn });
+
+
+
       } else {
         this.$listItem.css(config);
         if(completeFn) { completeFn(); }
@@ -392,9 +415,12 @@ FlowGallery.prototype = {
 
       // set height of caption as bottom margin for list
       var fullHeight = this.activeItem.h + this.$caption.height() + 40;
-      this.$list.height(fullHeight);
+      //this.$list.height(fullHeight);
 
-      this.$caption.fadeIn('fast');
+      //this.$caption.fadeIn('fast');
+    } else {
+      var fullHeight = this.activeItem.h + 40;
+      //this.$list.height(fullHeight);
     }
   },
 

@@ -160,7 +160,7 @@ FlowItem.prototype = {
 
   // click handler on listItem <li>
   clickHandler: function() {
-    if(this.listItem !== this.flowGallery.activeItem) {
+    if(this !== this.flowGallery.activeItem) {
       var oldIndex = this.flowGallery.activeIndex;
       this.flowGallery.flowInDir(this.index-oldIndex);
     } else if(this.options.forwardOnActiveClick===true) {
