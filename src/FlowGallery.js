@@ -32,7 +32,7 @@ var FlowGallery = function(element, options) {
     self.flowInDir(-1);
   };
 
-  this.goto = function(index) {
+  this.jump = function(index) {
     self.flowInDir(index - self.activeIndex);
   };
 
