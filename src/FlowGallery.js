@@ -110,7 +110,7 @@ FlowGallery.prototype = {
     return this;
   },
 
-  goto: function(index, animate) {
+  jump: function(index, animate) {
     this.flowInDir(index - this.activeIndex, animate);
     return this;
   },
@@ -448,6 +448,6 @@ FlowGallery.prototype = {
 
 var FlowGalleryApi = ApiGenerator.init(FlowGallery, {
   getters: ['options', 'length'],
-  methods: ['next', 'prev', 'goto', 'isEnabled', 'enable', 'disable'],
+  methods: ['next', 'prev', 'jump', 'isEnabled', 'enable', 'disable'],
   version: getVersion()
 });

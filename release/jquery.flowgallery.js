@@ -1,7 +1,7 @@
 /*!
  * jQuery flowgallery plugin: Cover Flow Image Gallery
  * Examples and documentation at: http://github.com/bozz/flowgallery
- * Version: 0.7.0pre (04-MAR-2012)
+ * Version: 0.7.0pre (07-MAR-2012)
  * Author: Boris Searles (boris@lucidgardens.com)
  * Requires jQuery v1.3.2 or later
  * Dual licensed under the MIT and GPL licenses:
@@ -230,7 +230,7 @@ FlowGallery.prototype = {
     return this;
   },
 
-  goto: function(index, animate) {
+  jump: function(index, animate) {
     this.flowInDir(index - this.activeIndex, animate);
     return this;
   },
@@ -568,7 +568,7 @@ FlowGallery.prototype = {
 
 var FlowGalleryApi = ApiGenerator.init(FlowGallery, {
   getters: ['options', 'length'],
-  methods: ['next', 'prev', 'goto', 'isEnabled', 'enable', 'disable'],
+  methods: ['next', 'prev', 'jump', 'isEnabled', 'enable', 'disable'],
   version: getVersion()
 });
 
