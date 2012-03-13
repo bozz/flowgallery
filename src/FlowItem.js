@@ -11,28 +11,20 @@ var FlowItem = function(elem, index, flowGallery, loadCompleteCallback) {
   this.loadCompleteCallback = loadCompleteCallback;
 
   this.h = 0;               // image height
-  this.th= 0;              // thumb height
-  this.w= 0;               // image width
-  this.tw= 0;              // thumb width
-  this.active= false;      // is active image?
-  this.isLoaded= false;    // is image fully loaded?
-  this.captionText= false; // text specified within 'title' attribute of img
-  this.oldActive= false;   // is this image being animated away from active position?
-  this.$img= false;
+  this.th = 0;              // thumb height
+  this.w = 0;               // image width
+  this.tw = 0;              // thumb width
+  this.active = false;      // is active image?
+  this.isLoaded = false;    // is image fully loaded?
+  this.captionText = false; // text specified within 'title' attribute of img
+  this.oldActive = false;   // is this image being animated away from active position?
+  this.$img = false;
 };
 
 
 FlowItem.prototype = {
-  //h: 0,               // image height
-  //th: 0,              // thumb height
-  //w: 0,               // image width
-  //tw: 0,              // thumb width
-  //active: false,      // is active image?
-  //isLoaded: false,    // is image fully loaded?
-  //captionText: false, // text specified within 'title' attribute of img
-  //oldActive: false,   // is this image being animated away from active position?
-  //$img: false,
 
+  constructor: FlowItem,
 
   getListItem: function() {
     return this.$listItem;

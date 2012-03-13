@@ -1,7 +1,7 @@
 /*!
  * jQuery flowgallery plugin: Cover Flow Image Gallery
  * Examples and documentation at: http://github.com/bozz/flowgallery
- * Version: 0.7.0pre (07-MAR-2012)
+ * Version: 0.7.0pre (13-MAR-2012)
  * Author: Boris Searles (boris@lucidgardens.com)
  * Requires jQuery v1.3.2 or later
  * Dual licensed under the MIT and GPL licenses:
@@ -122,10 +122,10 @@ var ApiGenerator = (function() {
 
 var FlowGallery = function(elem, config) {
 
-  this.list = elem;                 // reference to list as jquery object
+  this.list = elem;           // reference to list as jquery object
   this.$list = $(elem);
 
-  this.config = config;             // config options set by user
+  this.config = config;       // config options set by user
 
   // This next line takes advantage of HTML5 data attributes
   // to support customization of the plugin on a per-element
@@ -133,7 +133,10 @@ var FlowGallery = function(elem, config) {
   // <ul id='gallery' data-plugin-options='{"activeIndex": 3}'>...</ul>
   this.metadata = this.$list.data( 'plugin-options' );
 
-  // private variables
+  this.options= {};           // merged config options with defaults
+  this.length= 0;             // number of images in gallery
+  this.activeIndex= 0;        // activeIndex
+  this.activeItem= false;     // reference to active FlowItem
   this.listWidth= 0;          // list width (default: screen width)
   this.listHeight= 0;         // list height (height of highest image)
   this.elCounter= 0;          // number of list items
@@ -143,12 +146,6 @@ var FlowGallery = function(elem, config) {
   this.centerY= 0;            // vertical center within list
   this.$container= false;     // parent element of list
   this.$caption= false;       // caption element
-
-  // public variables
-  this.options= {};           // merged config options with defaults
-  this.length= 0;             // number of images in gallery
-  this.activeIndex= 0;        // activeIndex
-  this.activeItem= false;     // reference to active FlowItem
   this.enabled= true;         // is gallery currently enabled
 
   this.init();
@@ -181,23 +178,6 @@ FlowGallery.defaults = {
 FlowGallery.prototype = {
 
   constructor: FlowGallery,
-
-  //// private variables
-  //listWidth: 0,          // list width (default: screen width)
-  //listHeight: 0,         // list height (height of highest image)
-  //elCounter: 0,          // number of list items
-  //flowItems: [],         // array of FlowItems
-  //activeLoaded: false,   // has active image been loaded?
-  //centerX: 0,            // horizontal center within list
-  //centerY: 0,            // vertical center within list
-  //$container: false,     // parent element of list
-  //$caption: false,       // caption element
-
-  //// public variables
-  //config: {},            // merged options
-  //length: 0,             // number of images in gallery
-  //activeIndex: 0,        // activeIndex
-  //activeItem: false,     // reference to active FlowItem
 
   // initialize gallery
   init: function() {
@@ -310,24 +290,12 @@ FlowGallery.prototype = {
 
     this.listWidth = this.$container.width();
     this.centerX = this.listWidth*0.5;
-
-    //var activeImageHeight = false;
-    //if(this.activeItem.isLoaded) {
-      //activeImageHeight = this.activeItem.h;
-    //}
-
-    //if(activeImageHeight) {
-      //centerY = this.options.thumbTopOffset==='auto' ? activeImageHeight*0.5 : this.options.thumbTopOffset;
-    //} else {
-      //centerY = this.options.thumbTopOffset==='auto' ? this.listHeight*0.5 : this.options.thumbTopOffset + this.options.thumbHeight*0.5;
-    //}
   },
 
 
   itemLoadedHandler: function(item) {
     if(item.index===this.options.activeIndex) {
       this.activeLoaded = true;
-      //this.centerY = this.options.thumbTopOffset==='auto' ? item.h*0.5 : this.options.thumbTopOffset;
     } else {
       var animateParams = { height: item.th, width: item.tw };
       if(this.activeLoaded) {
@@ -376,7 +344,6 @@ FlowGallery.prototype = {
     var currentItem = false;
     var $listItem = false;
     var itemsLength = this.flowItems.length;
-
 
     // update centerY based on active image
     this.centerY = this.options.thumbTopOffset==='auto' ? this.activeItem.h*0.5 : this.options.thumbTopOffset;
@@ -431,9 +398,6 @@ FlowGallery.prototype = {
 
       if(animate) {
         this.$listItem.stop().animate(config, { duration: this.options.duration, easing: this.options.easing, complete: completeFn });
-
-
-
       } else {
         this.$listItem.css(config);
         if(completeFn) { completeFn(); }
@@ -567,7 +531,7 @@ FlowGallery.prototype = {
 
 
 var FlowGalleryApi = ApiGenerator.init(FlowGallery, {
-  getters: ['options', 'length'],
+  getters: ['options', 'activeIndex', 'length'],
   methods: ['next', 'prev', 'jump', 'isEnabled', 'enable', 'disable'],
   version: getVersion()
 });
@@ -586,28 +550,20 @@ var FlowItem = function(elem, index, flowGallery, loadCompleteCallback) {
   this.loadCompleteCallback = loadCompleteCallback;
 
   this.h = 0;               // image height
-  this.th= 0;              // thumb height
-  this.w= 0;               // image width
-  this.tw= 0;              // thumb width
-  this.active= false;      // is active image?
-  this.isLoaded= false;    // is image fully loaded?
-  this.captionText= false; // text specified within 'title' attribute of img
-  this.oldActive= false;   // is this image being animated away from active position?
-  this.$img= false;
+  this.th = 0;              // thumb height
+  this.w = 0;               // image width
+  this.tw = 0;              // thumb width
+  this.active = false;      // is active image?
+  this.isLoaded = false;    // is image fully loaded?
+  this.captionText = false; // text specified within 'title' attribute of img
+  this.oldActive = false;   // is this image being animated away from active position?
+  this.$img = false;
 };
 
 
 FlowItem.prototype = {
-  //h: 0,               // image height
-  //th: 0,              // thumb height
-  //w: 0,               // image width
-  //tw: 0,              // thumb width
-  //active: false,      // is active image?
-  //isLoaded: false,    // is image fully loaded?
-  //captionText: false, // text specified within 'title' attribute of img
-  //oldActive: false,   // is this image being animated away from active position?
-  //$img: false,
 
+  constructor: FlowItem,
 
   getListItem: function() {
     return this.$listItem;
