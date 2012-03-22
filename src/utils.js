@@ -4,7 +4,7 @@
  * @return {string}
  */
 var getVersion = function () {
-  return '1.0.0pre';
+  return "{{Version}}";
 };
 
 

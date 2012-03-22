@@ -1,12 +1,11 @@
 /*!
  * jQuery flowgallery plugin: Cover Flow Image Gallery
- * Examples and documentation at: http://github.com/bozz/flowgallery
- * Version: 0.7.0pre (13-MAR-2012)
+ * Examples and documentation at: http://flowgallery.org
+ * Version: 0.7.0pre (22-MAR-2012)
  * Author: Boris Searles (boris@lucidgardens.com)
- * Requires jQuery v1.3.2 or later
- * Dual licensed under the MIT and GPL licenses:
+ * Requires jQuery v1.4 or later
+ * Licensed under the MIT license:
  * http://www.opensource.org/licenses/mit-license.php
- * http://www.gnu.org/licenses/gpl.html
  */
 ;(function( $, window, document, undefined ){
 
@@ -16,7 +15,7 @@
  * @return {string}
  */
 var getVersion = function () {
-  return '1.0.0pre';
+  return "0.7.0pre";
 };
 
 

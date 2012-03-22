@@ -1,4 +1,3 @@
-
 var fs = require("fs");
 
 desc('Generate FlowGallery release files');
@@ -12,6 +11,9 @@ task('default', function (params) {
   file = replaceMarkerWithFileContents(file, 'FlowGallery');
   file = replaceMarkerWithFileContents(file, 'FlowItem');
   file = replaceMarkerWithFileContents(file, 'plugin');
+
+  var versionData = fs.readFileSync('../version.txt', 'utf8');
+  file = file.replace(/{{Version}}/g, trim(versionData));
 
   var pluginFile = '../release/jquery.flowgallery.js';
   fs.writeFileSync(pluginFile, file);
@@ -28,8 +30,8 @@ task('default', function (params) {
 // 'Date' placeholders
 var getHeader = function() {
   var headerData = fs.readFileSync('../src/header.js', 'utf8');
-  var versionData = fs.readFileSync('../version.txt', 'utf8');
-  headerData = headerData.replace('{{Version}}', trim(versionData));
+  // var versionData = fs.readFileSync('../version.txt', 'utf8');
+  // headerData = headerData.replace('{{Version}}', trim(versionData));
   headerData = headerData.replace('{{Date}}', '(' + getDate() + ')');
   return headerData;
 }
