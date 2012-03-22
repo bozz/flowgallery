@@ -9,16 +9,15 @@ Demo and Documentation: http://flowgallery.org
 
 The required markup for the image gallery is a simple unordered list of images:
 
-<pre>
-<ul id="gallery">
-  <li><img src="..." title="image caption text" alt="image" /></li>
-  <li><img src="..." title="image caption text" alt="image" /></li>
-  <li><img src="..." title="image caption text" alt="image" /></li>
-  <li><img src="..." title="image caption text" alt="image" /></li>
-  <li><img src="..." title="image caption text" alt="image" /></li>
-  <li><img src="..." title="image caption text" alt="image" /></li>
-</ul>
-</pre>
+	<ul id="gallery">
+	  <li><img src="..." title="image caption text" alt="image" /></li>
+	  <li><img src="..." title="image caption text" alt="image" /></li>
+	  <li><img src="..." title="image caption text" alt="image" /></li>
+	  <li><img src="..." title="image caption text" alt="image" /></li>
+	  <li><img src="..." title="image caption text" alt="image" /></li>
+	  <li><img src="..." title="image caption text" alt="image" /></li>
+	</ul>
+
 
 For basic usage with default settings, select the appropriate list and initialize as follows: 
 
