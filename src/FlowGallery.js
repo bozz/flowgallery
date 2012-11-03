@@ -381,7 +381,7 @@ FlowGallery.prototype = {
       var fullHeight = this.activeItem.h + this.$caption.height() + 40;
       //this.$list.height(fullHeight);
 
-      //this.$caption.fadeIn('fast');
+      this.$caption.fadeIn('fast');
     } else {
       var fullHeight = this.activeItem.h + 40;
       //this.$list.height(fullHeight);

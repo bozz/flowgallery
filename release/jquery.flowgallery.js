@@ -1,7 +1,7 @@
 /*!
  * jQuery flowgallery plugin: Cover Flow Image Gallery
  * Examples and documentation at: http://flowgallery.org
- * Version: 0.7.0pre (22-MAR-2012)
+ * Version: 0.7.0pre (04-NOV-2012)
  * Author: Boris Searles (boris@lucidgardens.com)
  * Requires jQuery v1.4 or later
  * Licensed under the MIT license:
@@ -500,7 +500,7 @@ FlowGallery.prototype = {
       var fullHeight = this.activeItem.h + this.$caption.height() + 40;
       //this.$list.height(fullHeight);
 
-      //this.$caption.fadeIn('fast');
+      this.$caption.fadeIn('fast');
     } else {
       var fullHeight = this.activeItem.h + 40;
       //this.$list.height(fullHeight);
