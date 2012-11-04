@@ -70,3 +70,6 @@ p.bf-caption {
   margin: 0;
   text-align: left;
 }
+p.bf-caption a {
+  color: red;
+}

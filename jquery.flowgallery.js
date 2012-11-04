@@ -1,7 +1,7 @@
 /*!
  * jQuery flowGallery plugin: Cover Flow Image Gallery
  * Examples and documentation at: http://github.com/bozz/flowGallery
- * version 0.6.4 (03-JUL-2011)
+ * version 0.6.5 (04-NOV-2012)
  * Author: Boris Searles (boris@lucidgardens.com)
  * Requires jQuery v1.3.2 or later
  * Dual licensed under the MIT and GPL licenses:
@@ -259,7 +259,7 @@ var _showCaption = function(elem) {
   var caption = $(elem).parent().parent().find('p.bf-caption');
   var captionText = img.title;
   if(img.title.length > 0){
-    caption.text(captionText);
+    caption.html(captionText);
 
     caption.css({
       left: _centerX - _options.imagePadding - _imgData[_activeIndex].w * 0.5,
