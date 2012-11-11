@@ -1,17 +1,9 @@
 describe("FlowGallery", function() {
 
-  // replace images in fixture with fake images, this
-  // avoids need to wait for asynchronous loading of images.
-  var loadFakeImages = function($el) {
-    $el.find('img').each(function(index) {
-      var $img = $(new Image());
-      $img.height('400').width('350').attr('title', 'image '+index);
-      $(this).replaceWith($img);
-    });
-  };
-
   describe("basic setup with default config", function() {
-    var $gallery, $el, api, clock;
+    var $gallery, $el, api, clock,
+        fullImageHeight = 400,
+        fullImageWidth = 250;
 
     beforeEach(function() {
       clock = sinon.useFakeTimers();
@@ -20,7 +12,7 @@ describe("FlowGallery", function() {
 
       $el = $('#jasmine-fixtures');
       $gallery = $('#gallery');
-      loadFakeImages($gallery);
+      SpecHelper.loadFakeImages($gallery, fullImageWidth, fullImageHeight);
       $gallery.flowgallery();
       api = $gallery.data('flowgallery');
     });
@@ -42,7 +34,7 @@ describe("FlowGallery", function() {
         var $images = $gallery.find('li').not('.active');
         $images.each(function(index) {
           expect( $(this).width() ).toEqual(100); // from default 'loadingWidth' config
-          expect( $(this).height() ).toEqual(60);
+          expect( $(this).height() ).toEqual(160);
         });
       });
 
@@ -64,8 +56,8 @@ describe("FlowGallery", function() {
       });
 
       it("should be set to full size", function() {
-        expect( $active.width() ).toEqual(350);
-        expect( $active.height() ).toEqual(400);
+        expect( $active.width() ).toEqual(fullImageWidth);
+        expect( $active.height() ).toEqual(fullImageHeight);
       });
 
       it("should have title displayed as caption", function() {
@@ -275,12 +267,6 @@ describe("FlowGallery", function() {
           expect( $firstItem.hasClass('active') ).toEqual(true);
         });
       });
-    });
-  });
-
-  describe('config options', function() {
-    it('TODO: should test all config options', function() {
-      // TODO: move to seperate file
     });
   });
 
