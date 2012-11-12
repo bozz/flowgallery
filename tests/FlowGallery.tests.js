@@ -193,13 +193,13 @@ describe("FlowGallery", function() {
 
       describe('getLength', function() {
         it('should return correct length', function() {
-          expect( api.getLength() ).toEqual(6);
+          expect( api.length ).toEqual(6);
         });
       });
 
       describe('getOptions', function() {
         it('should return config options', function() {
-          expect( api.getOptions() ).toEqual($.fn.flowgallery.defaults);
+          expect( api.options ).toEqual($.fn.flowgallery.defaults);
         });
       });
 
