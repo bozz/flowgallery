@@ -1,7 +1,7 @@
 /*!
  * jQuery flowgallery plugin: Cover Flow Image Gallery
  * Examples and documentation at: http://flowgallery.org
- * Version: 0.7.0pre (11-NOV-2012)
+ * Version: 0.7.0pre (12-NOV-2012)
  * Author: Boris Searles (boris@lucidgardens.com)
  * Requires jQuery v1.4 or later
  * Licensed under the MIT license:
@@ -386,13 +386,14 @@ FlowGallery.prototype = {
 
         completeFn = null;
 
+        // TODO: rethink oldActive check, need to set width/height on first render
         // only animate width/height for old active item
-        if(currentItem.oldActive) {
+        // if(currentItem.oldActive) {
           config.width = currentItem.tw+'px';
           config.height = currentItem.th+'px';
           config.padding = this.options.thumbPadding+'px';
           completeFn = this.getOldActiveAfterFlowHandler(i);
-        }
+        // }
       }
 
       if(animate) {

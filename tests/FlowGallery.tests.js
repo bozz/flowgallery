@@ -32,9 +32,10 @@ describe("FlowGallery", function() {
 
       it('should set non-active images to thumbnail size', function() {
         var $images = $gallery.find('li').not('.active');
+        var expectedHeight = Math.round(fullImageHeight * 100 / fullImageWidth);
         $images.each(function(index) {
-          expect( $(this).width() ).toEqual(100); // from default 'loadingWidth' config
-          expect( $(this).height() ).toEqual(160);
+          expect( $(this).width() ).toEqual(100); // set loadingWidth since both thumbHeight and thumbWidth set to 'auto'
+          expect( $(this).height() ).toEqual(expectedHeight);
         });
       });
 

@@ -267,13 +267,14 @@ FlowGallery.prototype = {
 
         completeFn = null;
 
+        // TODO: rethink oldActive check, need to set width/height on first render
         // only animate width/height for old active item
-        if(currentItem.oldActive) {
+        // if(currentItem.oldActive) {
           config.width = currentItem.tw+'px';
           config.height = currentItem.th+'px';
           config.padding = this.options.thumbPadding+'px';
           completeFn = this.getOldActiveAfterFlowHandler(i);
-        }
+        // }
       }
 
       if(animate) {
