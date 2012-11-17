@@ -117,6 +117,7 @@
       // loop through list items to extract image data and determine list height
       $list.children().each(function(index) {
         var flowItem = new FlowItem(this, index, options);
+        if(!flowItem.$el) { return; }
 
         flowItem.$el.on('loaded', onItemLoaded);
         flowItem.$el.on('click', onItemClicked);
@@ -128,7 +129,6 @@
         }
 
         flowItems.push(flowItem);
-        flowItem.init();
       });
 
       self.enabled = true;
@@ -146,7 +146,7 @@
       //   if(activeLoaded) {
       //     animateParams.top = (centerY - item.th*0.5) + 'px';
       //   }
-      //   item.getListItem().animate(animateParams);
+      //   item.$el.animate(animateParams);
       }
 
       updateListHeight(item.h);
@@ -206,7 +206,7 @@
 
       for(i=0; i<itemsLength; i++) {
         currentItem = flowItems[i];
-        $listItem = currentItem.getListItem();
+        $listItem = currentItem.$el;
 
         if( $listItem.hasClass('active') ) {
           config = {
@@ -295,7 +295,7 @@
 
       $caption.hide();
       $list.find('.active').removeClass('active');
-      $(activeItem.getListItem()).addClass('active');
+      $(activeItem.$el).addClass('active');
 
       // update width (changes if scrollbars disappear)
       listWidth = $container.width();
@@ -462,147 +462,138 @@
 
 
   var FlowItem = function(elem, index, options) {
+    var self = this,
+      $img = false;
 
-    this.listItem = elem;
-    this.$listItem = $(elem);
     this.$el = $(elem);
-
     this.index = index;
-    this.options = options;
 
     this.h = 0;               // image height
     this.th = 0;              // thumb height
     this.w = 0;               // image width
     this.tw = 0;              // thumb width
     this.active = false;      // is active image?
+
     this.isLoaded = false;    // is image fully loaded?
     this.captionText = false; // text specified within 'title' attribute of img
     this.oldActive = false;   // is this image being animated away from active position?
-    this.$img = false;
 
-    this.$el.data('flowItem', this);
-  };
+    function init() {
+      self.h = options.loadingHeight;
+      self.th = options.loadingHeight;
+      self.w = options.loadingWidth;
+      self.tw = options.loadingWidth;
 
+      $img = self.$el.find('img');
 
-  FlowItem.prototype = {
+      if($img.length===0) {
+        // mark as invalid if no image found
+        self.$el = false;
+        return;
+      }
 
-    constructor: FlowItem,
+      self.$el.data('flowItem', self);
+      self.captionText = $img.attr('title');
 
-    getListItem: function() {
-      return this.$listItem;
-    },
-
-
-    init: function() {
-      this.h = this.options.loadingHeight;
-      this.th = this.options.loadingHeight;
-      this.w = this.options.loadingWidth;
-      this.tw = this.options.loadingWidth;
-      this.$img = this.$listItem.find('img');
-
-      // TODO: if no image found, remove <li> item from list
-
-      this.captionText = this.$img.attr('title');
-
-      if(this.options.forceWidth) {
-        this.$img.width(this.options.forceWidth);
+      if(options.forceWidth) {
+        $img.width(options.forceWidth);
       }
 
       // remove image and add 'loading' class
-      this.$img.hide().parent().addClass(this.options.loadingClass).css({
-        height: this.th,
-        width: this.tw
+      $img.hide().parent().addClass(options.loadingClass).css({
+        height: self.th,
+        width: self.tw
       });
 
-      this.addLoadHandler();
+      addLoadHandler();
 
-      this.$listItem.css({
-        backgroundColor: this.options.backgroundColor,
-        padding: this.options.thumbPadding,
+      self.$el.css({
+        backgroundColor: options.backgroundColor,
+        padding: options.thumbPadding,
         position: 'absolute',
         textAlign: 'center'
       });
 
-      this.$img.css({
+      $img.css({
         cursor: 'pointer',
         height: '100%',
         imageRendering: 'optimizeQuality', // firefox property
         //-ms-interpolation-mode: 'bicubic',  // IE property
         width: '100%'
       });
-    },
-
+    };
 
     // add handler to images to call after finished loading
-    addLoadHandler: function() {
-      var img = this.$img.get(0);
+    function addLoadHandler() {
+      var img = $img.get(0);
       if(img.complete) {
-        this.initListItem();
+        initListItem();
       } else {
-        var self = this;
-        this.$img.bind('load readystatechange', $.proxy(this.imageLoadHandler, this))
+        $img.bind('load readystatechange', imageLoadHandler)
         .bind('error', function () {
-          self.$img.css('visibility', 'visible').parent().removeClass(self.options.loadingClass);
+          $img.css('visibility', 'visible').parent().removeClass(options.loadingClass);
         });
       }
-
-    },
+    };
 
 
     // event handler for image loading
-    imageLoadHandler: function(e) {
-      var img = this.$img.get(0);
+    function imageLoadHandler(e) {
+      var img = $img.get(0);
       if (img.complete || (img.readyState === 'complete' && e.type === 'readystatechange')) {
-        this.initListItem();
+        initListItem();
       }
-    },
+    };
 
 
     // load handler for images
-    initListItem: function(){
-      this.$img.css('visibility', 'visible').parent().removeClass(this.options.loadingClass);
-      this.$img.fadeIn();
+    function initListItem(){
+      $img.css('visibility', 'visible').parent().removeClass(options.loadingClass);
+      $img.fadeIn();
 
-      this.isLoaded = true;
-      this.initImageDimensions();
+      self.isLoaded = true;
+      initImageDimensions();
 
-      this.$el.trigger('loaded', this);
-    },
+      self.$el.trigger('loaded', self);
+    };
 
 
     // determine image dimensions
-    initImageDimensions: function() {
-      var img_raw = this.$img.get(0);
+    function initImageDimensions() {
+      var img = $img.get(0);
 
       // update full image dimensions
-      if(typeof img_raw.naturalWidth !== 'undefined') {
-        this.w  = this.options.forceWidth || img_raw.naturalWidth || img_raw.width;
-        this.h = this.options.forceHeight || img_raw.naturalHeight || img_raw.height;
+      if(typeof img.naturalWidth !== 'undefined') {
+        self.w  = options.forceWidth || img.naturalWidth || img.width;
+        self.h = options.forceHeight || img.naturalHeight || img.height;
       } else {
         var tmpImg = new Image();
-        tmpImg.src = this.$img.attr('src');
-        this.w = tmpImg.width;
-        this.h = tmpImg.height;
+        tmpImg.src = $img.attr('src');
+        self.w = tmpImg.width;
+        self.h = tmpImg.height;
       }
 
       // update thumbnail dimensions
-      if(this.options.thumbWidth === 'auto' && this.options.thumbHeight === 'auto') {
-        this.tw = this.options.loadingWidth;
-        this.th = Math.round(this.h * this.options.loadingWidth / this.w);
-      } else if (this.options.thumbHeight === 'auto') {
-        this.tw = this.options.thumbWidth;
-        this.th = Math.round(this.h * Number(this.options.thumbWidth) / this.w);
-      } else if (this.options.thumbWidth === 'auto') {
-        this.tw = Math.round(this.w * Number(this.options.thumbHeight) / this.h);
-        this.th = this.options.thumbHeight;
+      if(options.thumbWidth === 'auto' && options.thumbHeight === 'auto') {
+        self.tw = options.loadingWidth;
+        self.th = Math.round(self.h * options.loadingWidth / self.w);
+      } else if (options.thumbHeight === 'auto') {
+        self.tw = options.thumbWidth;
+        self.th = Math.round(self.h * Number(options.thumbWidth) / self.w);
+      } else if (options.thumbWidth === 'auto') {
+        self.tw = Math.round(self.w * Number(options.thumbHeight) / self.h);
+        self.th = options.thumbHeight;
       } else {
-        this.tw = this.options.thumbWidth;
-        this.th = this.options.thumbHeight;
+        self.tw = options.thumbWidth;
+        self.th = options.thumbHeight;
       }
-    }
+    };
 
+
+    // Public API ==================================================
+
+    init();
   };
-
 
 
   /** Basic jQuery plugin setup */
