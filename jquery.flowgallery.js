@@ -8,6 +8,7 @@
  * http://www.opensource.org/licenses/mit-license.php
  */
 ;(function( $, window, document, undefined ){
+  "use strict";
 
   /**
    * helper function to get current plugin version
@@ -29,7 +30,6 @@
       $caption = false,       // caption element
       activeItem = false,     // reference to active FlowItem
       activeIndex = 0,
-      activeLoaded = false,   // has active image been loaded?
       listWidth = 0,          // list width (default: screen width)
       listHeight = 0,         // list height (height of highest image)
       flowItems = [],         // array of FlowItems
@@ -139,20 +139,13 @@
 
     function onItemLoaded() {
       var item = $(this).data('flowItem');
-      if(item.index===options.activeIndex) {
-        activeLoaded = true;
-      // } else {
-      //   var animateParams = { height: item.th, width: item.tw };
-      //   if(activeLoaded) {
-      //     animateParams.top = (centerY - item.th*0.5) + 'px';
-      //   }
-      //   item.$el.animate(animateParams);
-      }
-
       updateListHeight(item.h);
-
-      // redraw in order to update thumbnail positions
-      updateFlow(false);
+      if(item.index===options.activeIndex) {
+        self.activeLoaded = true;
+        updateFlow(true);
+      } else if(self.activeLoaded && (item.th !== options.loadingHeight || item.tw !== options.loadingWidth)) {
+        updateFlow(true);
+      }
     };
 
 
