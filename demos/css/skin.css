@@ -12,8 +12,6 @@ body {
 h1 {
   color: #444;
   float: left;
-  /* margin: 0 auto 25px;
-  text-align: center; */
   margin: 20px 30px 20px 50px;
   text-shadow: 2px 2px 0px #ccc;
 }
@@ -50,84 +48,8 @@ ul {
   visibility: hidden;
 }
 
-
-/*
-#logo {
-  position: absolute;
-  left: 0;
-  top: 0;
-}
-#logo img {
-  border: 0;
-}
-#links {
-  list-style: none;
-  margin: 0 auto;
-  padding-left: 0;
-  text-align: center;
-  width: 600px;
-}
-#links li {
-  display: inline;
-  padding-left: 20px;
-}
-#links .blog {
-  background: url(../images/page_white_text.png) no-repeat left center;
-}
-#links .download {
-  background: url(../images/page_white_compressed.png) no-repeat left center;
-}
-#links .github {
-  background: url(../images/github_16.png) no-repeat left center;
-}
-*/
-
-#header {
-  background-color: #C4C4C4;
-
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#cccccc', endColorstr='#999999');
-  background: -webkit-gradient(linear, left top, left bottom, from(#ccc), to(#999));
-  background: -moz-linear-gradient(top,  #ccc,  #999);
-
-  padding-top: 1px;
-  margin: 0;
-}
-
-#nav {
-  padding-left: 50px;
-}
-#nav label,
-#nav select {
-  font-size: 16px;
-}
-
-#tab-bar {
-  margin: 30px 0 0;
-}
-#tab-bar li {
-  float: left;
-  padding: 10px 10px;
-}
-#tab-bar a {
-  background-color: #666;
-  -moz-border-radius-topleft: 5px;
-  -moz-border-radius-topright: 5px;
-  border-top-left-radius: 5px;
-	border-top-right-radius: 5px;
-  color: #fff;
-  padding: 10px 25px;
-}
-#tab-bar a.active {
-  background-color: #ddd;
-  color: #000;
-}
-
 #content {
-  background-color: #ddd;
-  -moz-box-shadow: 0 -1px 15px #555;
-  -webkit-box-shadow: 0 -1px 15px #555;
-  box-shadow: 0 -1px 15px #555;
-  margin: 0;
+  margin: 50px 0 80px;
   padding: 15px 0;
 }
 
@@ -143,7 +65,7 @@ ul {
 
 /* image caption */
 
-p.bf-caption {
+p.fg-caption {
   color: #999;
   font-size: 12px;
   font-weight: normal;
