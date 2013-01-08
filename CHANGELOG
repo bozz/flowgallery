@@ -1,25 +1,28 @@
-=================================
-=   FlowGallery jQuery Plugin   =
-=================================
+====================================
+=   flowgallery.js jquery plugin   =
+====================================
 
-v0.7.0 (2012-03-22)
+v0.7.0 (2013-01-08)
 
-  - complete refactor of underlying code to improve performance and maintainability
-  - added scripting API for controlling gallery through javascript
-  - added "loadingHeight" and "loadingWidth" config params that specify size of placeholder while loading
-  - changed behaviour for "thumbTopOffset" - when set to "auto", thumbnails will vertically realign themselves with each active image
-  - when gallery needs to be resized because of active images with different heights, this resizing of the list is now animated as the active image is scaled
-  - changed "forwardOnActiveClick" default value to "true"
+	- complete refactor of underlying code to improve performance and maintainability
+	- added scripting API for controlling gallery through javascript
+	- added "loadingHeight" and "loadingWidth" config params that specify size of placeholder while loading
+	- changed behaviour for "thumbTopOffset" - when set to "auto", thumbnails will vertically realign themselves with each active image
+	- when gallery needs to be resized because of active images with different heights, this resizing of the list is now animated as the active image is scaled
+	- changed "forwardOnActiveClick" default value to "true"
+
+v0.6.5 (2012-11-04)
+
+	- image title attribute for captions now supports html tags
 
 v0.6.4 (2011-07-03)
 
-  - enable 'auto' setting for thumbWidth config option (thanks to Andrew White for contribution!)
+	- enable 'auto' setting for thumbWidth config option (thanks to Andrew White for contribution!)
 
 v0.6.3 (2011-06-04)
 
-	- bugfix: calculate animations from width of parent container and not
-	document (thanks to pinmc for fix)
-  - bugfix: fix initial image width calculation in jQuery v1.6.0
+	- bugfix: calculate animations from width of parent container and not document (thanks to pinmc for fix)
+	- bugfix: fix initial image width calculation in jQuery v1.6.0
 
 v0.6.2 (2011-02-26)
 

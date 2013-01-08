@@ -1,7 +1,7 @@
 /*!
  * jQuery flowgallery plugin: Cover Flow Image Gallery
  * Examples and documentation at: http://flowgallery.org
- * Version: 0.7.0pre (12-NOV-2012)
+ * Version: 0.7.0 (08-JAN-2013)
  * Author: Boris Searles (boris@lucidgardens.com)
  * Requires jQuery v1.4 or later
  * Licensed under the MIT license:
@@ -10,16 +10,7 @@
 ;(function( $, window, document, undefined ){
   "use strict";
 
-  /**
-   * helper function to get current plugin version
-   * @return {string}
-   */
-  var getVersion = function () {
-    return "0.7.0pre";
-  };
-
   var FlowGallery = function(list, config) {
-
     var self = this,
       list,
       $list,                  // reference to list as jquery object
@@ -35,6 +26,7 @@
       flowItems = [],         // array of FlowItems
       elCounter = 0,          // number of list items
       resizeWhileDisabled = false;
+
 
     // initialize gallery
     function init() {
