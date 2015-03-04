@@ -19,13 +19,13 @@ describe("FlowGalleryConfig", function() {
 
   describe('activeIndex', function() {
     it('should set image with specified index as initial active image', function() {
-      $gallery.flowgallery({
+      $gallery.flowGallery({
         activeIndex: 2
       });
       expect( $gallery.find('li').eq(2).hasClass('active') ).toEqual(true);
     });
     xit('should set first image as active for invalid index', function() {
-      $gallery.flowgallery({
+      $gallery.flowGallery({
         activeIndex: 99
       });
       expect( $gallery.find('li').first().hasClass('active') ).toEqual(true);
@@ -34,17 +34,17 @@ describe("FlowGalleryConfig", function() {
 
   describe('backgroundColor', function() {
     it('should set border and caption to specified color', function() {
-      $gallery.flowgallery({
+      $gallery.flowGallery({
         backgroundColor: '#ff0000'
       });
-      expect( $gallery.parent().find('.fg-caption').css('backgroundColor') ).toEqual('rgb(255, 0, 0)');
+      expect( $gallery.parent().find('.bf-caption').css('backgroundColor') ).toEqual('rgb(255, 0, 0)');
       expect( $gallery.find('li').css('backgroundColor') ).toEqual('rgb(255, 0, 0)');
     });
   });
 
   describe('forceHeight', function() {
     it('should set all full size images to specified height', function() {
-      $gallery.flowgallery({
+      $gallery.flowGallery({
         forceHeight: 200
       });
       expect( $gallery.find('li img').first().height() ).toEqual(200);
@@ -53,7 +53,7 @@ describe("FlowGalleryConfig", function() {
 
   describe('forceWidth', function() {
     it('should set all full size images to specified width', function() {
-      $gallery.flowgallery({
+      $gallery.flowGallery({
         forceWidth: 200
       });
       expect( $gallery.find('li img').first().width() ).toEqual(200);
@@ -63,19 +63,19 @@ describe("FlowGalleryConfig", function() {
   describe('imagePadding', function() {
     it('should set border around images to specified value', function() {
       var targetPadding = 8;
-      $gallery.flowgallery({
+      $gallery.flowGallery({
         imagePadding: targetPadding
       });
       expect( $gallery.find('li').first().css('padding') ).toEqual(targetPadding + 'px');
       // add 10px for extra padding on caption
-      expect( $gallery.parent().find('p.fg-caption').css('padding-left') ).toEqual((targetPadding + 10) + 'px');
+      expect( $gallery.parent().find('p.bf-caption').css('padding-left') ).toEqual((targetPadding + 10) + 'px');
     });
   });
 
   describe('thumbHeight', function() {
     var targetHeight = 40;
     beforeEach(function() {
-      $gallery.flowgallery({
+      $gallery.flowGallery({
         thumbHeight: targetHeight 
       });
     });
@@ -91,7 +91,7 @@ describe("FlowGalleryConfig", function() {
   describe('thumbWidth', function() {
     var targetWidth = 40;
     beforeEach(function() {
-      $gallery.flowgallery({
+      $gallery.flowGallery({
         thumbWidth: targetWidth
       });
     });
@@ -107,22 +107,10 @@ describe("FlowGalleryConfig", function() {
   describe('thumbPadding', function() {
     it('should set padding on all thumb images to specified value', function() {
       var targetPadding = 5;
-      $gallery.flowgallery({
+      $gallery.flowGallery({
         thumbPadding: targetPadding
       });
       expect( $gallery.find('li').eq(2).css('paddingLeft') ).toEqual(targetPadding + 'px');
-    });
-  });
-
-  describe('thumbTopOffset', function() {
-    it('should set top offset of center of all thumb images to specified value', function() {
-      var targetTopOffset = 100;
-      $gallery.flowgallery({
-        thumbTopOffset: targetTopOffset
-      });
-      var thumbHeight = $gallery.find('li').eq(2).height();
-      var expectedOffset = (targetTopOffset - thumbHeight * 0.5);
-      expect( $gallery.find('li').eq(2).css('top') ).toEqual(expectedOffset + 'px');
     });
   });
 });

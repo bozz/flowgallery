@@ -2,6 +2,11 @@
 =   flowgallery.js jquery plugin   =
 ====================================
 
+v0.6.5r (2013-10-25) <added by Robin Tenhagen>
+  - Refactored the API to be a consistend object. This allows multi-including of the library.
+  - Made available methods that are promised to be part of 0.6.5, but actually are not.
+  - Purpose is to use v0.6.5 rather then v0.7.0, since v0.6.5 is faster for initializing and scrolling.
+
 v0.7.0 (2013-01-08)
 
 	- complete refactor of underlying code to improve performance and maintainability
