@@ -1,9 +1,15 @@
 
-# FlowGallery #
+# flowgallery.js v0.6.5r: Refactored #
 
-jQuery plugin for image galleries with a cover flow effect.
+jQuery plugin for image galleries with a cover flow effect, refactored by Robin Tenhagen in order to provide (almost) full method implementation and easier use.
 
-Demo and Documentation: http://flowgallery.org
+Original page at: http://flowgallery.org
+
+flowgallery.js is a handy library for sliding galleries. It is one of the most useful ones, though it does not seem to be in development anymore. Its website shows an API documentation which applies for the development version 0.7.0 only. This turns out to load quite slowly only and is officially not stable.
+
+Version 0.6.5 is stable, though it does not contain all the API. In addition, it does not provide any class wrapping, so that the gallery could only be used once on a website.
+
+I refactored the stable version 0.6.5 and added almost all of the promised API methods. See the demo/index.html for a full documentation. 
 
 ## Usage ##
 
@@ -22,12 +28,16 @@ The required markup for the image gallery is a simple unordered list of images:
 For basic usage with default settings, select the appropriate list and initialize as follows: 
 
 <pre>
-$("#gallery").flowGallery({
-  easing: 'easeOutCubic',
-});
+var flowGallery = $('#gallery').flowGallery();
 </pre>
 
-There are many additional configuration options, see project website for more details: http://flowgallery.org.
+If you want to open the next picture, use the following call:
+
+<pre>
+flowGallery.next();
+</pre>
+
+There are many additional configuration options, see the demo file in demo/index.html for a full documentation of the implemented API.
 
 ## Dependencies ##
 
@@ -47,4 +57,4 @@ Tested under:
 ## Licensing ##
 
 Copyright (c) 2012 [Boris Searles](http://lucidgardens.com), released under [MIT](http://www.opensource.org/licenses/mit-license.php) license.
-
+Refactored by Robin Tenhagen (2013)

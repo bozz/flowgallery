@@ -13,8 +13,7 @@ describe("FlowGallery", function() {
       $el = $('#jasmine-fixtures');
       $gallery = $('#gallery');
       SpecHelper.loadFakeImages($gallery, fullImageWidth, fullImageHeight);
-      $gallery.flowgallery();
-      api = $gallery.data('flowgallery');
+      api = $gallery.flowGallery();
     });
 
     afterEach(function() {
@@ -60,18 +59,13 @@ describe("FlowGallery", function() {
         expect( $active.width() ).toEqual(fullImageWidth);
         expect( $active.height() ).toEqual(fullImageHeight);
       });
-
-      it("should have title displayed as caption", function() {
-        var captionText = $('.fg-caption', $el).text();
-        expect( $active.find('img').attr('title') ).toEqual(captionText);
-      });
     });
 
     describe('wrapper', function() {
       var $wrapper;
 
       beforeEach(function() {
-        $wrapper = $('.fg-wrapper', $el);
+        $wrapper = $('.bf-wrapper', $el);
       });
 
       it("should wrap around gallery", function() {
@@ -87,27 +81,23 @@ describe("FlowGallery", function() {
       var $caption;
 
       beforeEach(function() {
-        $caption = $('.fg-caption', $el);
+        $caption = $('.bf-caption', $el);
       });
 
       it('should exist', function() {
         expect( $caption.length ).toEqual(1);
       });
-
-      it('should be displayed', function() {
-        expect( $caption.css('display') ).toEqual('block');
-      });
     });
 
     describe('events', function() {
       describe('mouse', function() {
-        it('when first item active, should set second item as active when first item clicked', function() {
+        it('when first item active, should leave first item as active when first item clicked', function() {
           // this is enabled by "forwardOnActiveClick" default config
           $firstItem = $gallery.find('li').first();
           $secondItem = $gallery.find('li').eq(1);
-          expect( $secondItem.hasClass('active') ).toEqual(false);
+          expect( $firstItem.hasClass('active') ).toEqual(true);
           $firstItem.click();
-          expect( $secondItem.hasClass('active') ).toEqual(true);
+          expect( $firstItem.hasClass('active') ).toEqual(true);
         });
 
         it('when first item active, should set second item as active when second item clicked', function() {
@@ -176,30 +166,16 @@ describe("FlowGallery", function() {
     });
 
     describe('scripting api', function() {
-      describe('disable/enable', function() {
-        it('should enable previously disabled gallery', function() {
-          $firstItem = $gallery.find('li').first();
-          expect( $firstItem.hasClass('active') ).toEqual(true);
-          api.disable();
-          $firstItem.click();
-          api.next();
-          expect( $firstItem.hasClass('active') ).toEqual(true);
-          api.enable();
-          $firstItem.click();
-          api.next();
-          expect( $gallery.find('li').eq(2).hasClass('active') ).toEqual(true);
-        });
-      });
 
       describe('getLength', function() {
         it('should return correct length', function() {
-          expect( api.length ).toEqual(6);
+          expect( api.getLength() ).toEqual(6);
         });
       });
 
       describe('getOptions', function() {
         it('should return config options', function() {
-          expect( api.options ).toEqual($.fn.flowgallery.defaults);
+          expect( api.getOptions() ).toEqual($.fn.flowGallery.defaults);
         });
       });
 
@@ -217,17 +193,6 @@ describe("FlowGallery", function() {
           expect( $firstItem.hasClass('active') ).toEqual(true);
           api.jump(500);
           expect( $firstItem.hasClass('active') ).toEqual(true);
-        });
-      });
-
-      describe('isEnabled', function() {
-        it('should return true when enabled', function() {
-          expect( api.isEnabled() ).toEqual(true);
-        });
-
-        it('should return false when disabled', function() {
-          api.disable();
-          expect( api.isEnabled() ).toEqual(false);
         });
       });
 
